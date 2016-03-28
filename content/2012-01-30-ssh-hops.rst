@@ -1,0 +1,112 @@
+
+:title: SSH Hops
+:date: 2012-01-30
+:tags: guide, ssh
+
+Last night I got really fed up with the ``SSH`` setup in Informatics at
+UoE, so I finally set out to automate it as much as I could and get rid
+of some ad-hoc scripts and aliases I had been using so far. In the
+process, I discovered some really cool ``SSH`` features, which I
+describe later on.
+
+First of all, I had to set up Kerberos because key-based authentication
+is disabled. This was a simple matter of installing the ``krb5-user``
+debian package, adding INF.ED.AC.UK as the domain and
+running: [#kerberos]_
+
+.. code-block:: bash
+
+  kinit sxxxxxxx@inf.ed.ac.uk
+
+I could then login with Kerberos credentials by passing the ``-K`` flag to
+``SSH``.
+
+What's equally useful however is bypassing the ``SSH`` gateway. The best
+way to do this is by using the ``ProxyCommand`` option of ``SSH``. I
+found a `blog post`__ explaining its usage, while a more elaborate
+configuration allowing for arbitrary hops is described in `reddit`__.
+What follows is the corresponding snippet from my ``~/.ssh/config``
+file:
+
+__ http://www.jedi.be/blog/2008/11/07/chaining-ssh-tunnels-easy-ssh-hopping/
+__ http://www.reddit.com/r/linux/comments/fw4s0/
+
+.. code-block:: text
+
+  Compression yes
+  
+  # SSH Gateway.
+  Host inf
+  User sxxxxxxx
+  GSSAPIDelegateCredentials yes
+  HostName student.ssh.inf.ed.ac.uk
+  
+  # Compute server.
+  Host compute
+  User sxxxxxxx
+  Cipher blowfish
+  GSSAPIDelegateCredentials yes
+  HostName student.compute.inf.ed.ac.uk
+  ProxyCommand ssh inf nc -w 240 student.compute 22
+  
+  # NESS HPC server.
+  Host ness
+  User sxxxxxxx
+  Cipher blowfish
+  HostName ness.epcc.ed.ac.uk
+  ProxyCommand ssh inf nc -w 240 ness.epcc.ed.ac.uk 22
+  
+  # Gerrit/Git hosting service.
+  Host gerrit
+  Port 29418
+  User sxxxxxxx
+  Cipher blowfish
+  HostName gerrit.not-a-service.inf.ed.ac.uk
+  
+  # SOCKS5 proxy for Firefox:
+  # Invoke as `ssh -Nn tunnel` and add the following settings in user.js:
+  # user_pref("network.proxy.socks", "localhost");
+  # user_pref("network.proxy.socks_port", 8080);
+  # user_pref("network.proxy.socks_remote_dns", true);
+  # user_pref("network.proxy.type", 1);
+  Host tunnel
+  User sxxxxxxx
+  GSSAPIDelegateCredentials yes
+  HostName student.ssh.inf.ed.ac.uk
+  DynamicForward localhost:8080
+  Cipher blowfish
+  LogLevel QUIET
+  RequestTTY no
+
+This works seamlessly with ``sshfs``, and I can now mount *compute*'s
+ramdisk --which I use for scratch space-- to circumvent my quota
+restrictions, e.g.
+
+.. code-block:: bash
+
+  sshfs compute:/dev/shm/mike ~/mnt
+
+Initially ``sshfs`` and ``scp`` would not work correctly. After some
+digging around I discovered the culprit in my remote ``.bashrc`` file.
+Because I did not have permissions to change my default shell to my
+local installation of ``zsh``, I had placed an ``exec zsh`` command at
+the end of the ``.bashrc`` file. This was problematic for
+non-interactive shells, like those invoked by ``scp`` and ``sshfs``. The
+solution was to move the offending snippet to ``~/.bash_login``.
+
+Besides the proxy setup, the above configuration adds handy shortcuts
+for the hosts. The ``GSSAPIDelegateCredentials`` option is the
+equivalent of the ``-K`` flag. For *ness* and *gerrit* I just use
+key-based authentication. The ``-w 240`` is there to clean up the netcat
+process after 2 minutes of inactivity.
+
+The final entry is for tunneling my Firefox traffic through the SSH
+gateway. This is useful because the IP pool of the university's VPN does
+not provide access to all services. It also allows me to cleanly
+separate my university traffic. For a similar setup, just add a SOCKS5
+proxy from the Network Preferences, and set ``socks_remote_dns`` to
+``true`` in ``about:config``. Alternatively, paste the commented lines
+in a file named ``user.js`` inside your Firefox profile directory.
+
+.. [#kerberos] `Informatics Support FAQ <http://www.inf.ed.ac.uk/systems/support/FAQ/#KB5>`_
+
