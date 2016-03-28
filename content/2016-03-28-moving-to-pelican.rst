@@ -14,8 +14,8 @@ if I have to.
 
 While I've been using Markdown_ heavily for the past few years, it has
 some serious limitations when it comes to writing extensive
-documentation in it (captured succinctly in a `blog by Erich
-Holcher`__). Hence, I'm taking this opportunity to re-evaluate
+documentation in it (captured succinctly in a `blog by Eric
+Holscher`__). Hence, I'm taking this opportunity to re-evaluate
 reStructuredText_, and probably Asciidoc_ at some later point.
 
 __ http://ericholscher.com/blog/2016/mar/15/dont-use-markdown-for-technical-docs/
