@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+        <meta charset="utf-8" />
+        <title>Projects</title>
+        <link rel="stylesheet" href="/theme/css/main.css" />
+        <link href="/feeds/all.atom.xml" type="application/atom+xml" rel="alternate" title="_ Atom Feed" />
+
+        <!--[if IE]>
+            <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+        <![endif]-->
+</head>
+
+<body id="index" class="home">
+        <header id="banner" class="body">
+                <h1><a href="/">_ </a></h1>
+                <nav><ul>
+    
+                        <li><a href="/pages/about.html">About</a></li>
+    
+                        <li class="active"><a href="/pages/projects.html">Projects</a></li>
+                    <li><a href="/category/misc.html">misc</a></li>
+                </ul>
+                </nav>
+        </header><!-- /#banner -->
+<section id="content" class="body">
+    <h1 class="entry-title">Projects</h1>
+    
+    <p>This page includes various free software projects I have personally
+created or collaborated on. Some came out of school projects and
+assignments, some were started to scratch an itch, while others were
+created for the pure fun of&nbsp;it.</p>
+<div class="section" id="purity">
+<h2>Purity</h2>
+<p>Purity is a lightweight static analysis tool that determines the purity
+of <a class="reference external" href="https://www.erlang.org">Erlang</a> functions. It started as part of my diploma thesis back at
+<a class="reference external" href="http://www.ntua.gr"><span class="caps">NTUA</span></a> and was subsequently enhanced and released as free software under
+the <a class="reference external" href="https://www.gnu.org/licenses/lgpl-2.1.html"><span class="caps">LGPL</span> v2</a>. Besides detection of side-effects, execution environment
+dependencies and exceptions, it also features a very simple termination
+analysis. Code and documentation is available on <a class="reference external" href="https://github.com/mpitid/purity">github</a>.</p>
+<p>A highly experimental unfinished prototype of user defined guards for
+Erlang &#8212;utilising the analysis&#8217; results&#8212; can be found <a class="reference external" href="https://github.com/bjorng/otp/tree/user-guards">here</a>.</p>
+</div>
+<div class="section" id="spacenet">
+<h2>Spacenet</h2>
+<p>Spacenet is a distributed programming game. It was originally conceived
+as a fun way to present a workshop on declarative languages, along with
+two fellow members of the <a class="reference external" href="http://foss.ntua.gr"><span class="caps">FOSS</span> <span class="caps">NTUA</span></a> community. It is written in
+<a class="reference external" href="https://www.erlang.org">Erlang</a>, <a class="reference external" href="https://www.haskell.org">Haskell</a> and <a class="reference external" href="https://en.wikipedia.org/wiki/Prolog">Prolog</a>. I wrote the Erlang client/server code and
+some of the Prolog parts. The game has been tested successfully on a
+small <span class="caps">LAN</span> with 10 players. Code, documentation and screencast demos are
+available at the <a class="reference external" href="http://foss.ntua.gr/spacenet">spacenet website</a>.</p>
+</div>
+<div class="section" id="labelme">
+<h2>Labelme</h2>
+<p>Labelme is a simple image annotation tool developed for a project in my
+<em>Human-Computer Interaction</em> course with a fellow student. Since the
+code was relatively complete and functional I decided to publish it &#8212;
+who knows someone may find it useful someday. It is inspired by a
+similar web-based tool from the <a class="reference external" href="http://labelme.csail.mit.edu"><span class="caps">MIT</span> <span class="caps">CSAIL</span> Lab</a> but written in <a class="reference external" href="https://www.python.org">Python</a>
+and <a class="reference external" href="http://www.qt.io">Qt</a>. The code is available on <a class="reference external" href="https://github.com/mpitid/pylabelme">github</a> and you can see it in action in
+this <a class="reference external" href="/files/labelme.ogv">screencast tutorial</a>.</p>
+</div>
+<div class="section" id="pytag">
+<h2>Pytag</h2>
+<p>Pytag is command-line audio mass-tagging application written in <a class="reference external" href="https://www.python.org">Python</a>
+and based on the <a class="reference external" href="https://pypi.python.org/pypi/mutagen">mutagen</a> library. I regularly use it to organise parts
+of my ever-growing music collection. I&#8217;m currently in the process of
+recovering the repository and documentation after the server hosting it
+was&nbsp;lost.</p>
+</div>
+<div class="section" id="scripts">
+<h2>Scripts</h2>
+<p>Besides the aforementioned applications, I have put together a
+collection of some the <a class="reference external" href="https://github.com/mpitid/scripts">scripts</a> I&#8217;ve written from time to time, which
+are too small to warrant a section of their&nbsp;own.</p>
+<p><a class="reference external" href="https://github.com/mpitid/scripts/blob/master/aconv">aconv</a> is a handy shell script for converting audio files from a variety
+of formats (anything <a class="reference external" href="http://www.mplayerhq.hu/">mplayer</a> supports) to ogg, mp3 or&nbsp;wav.</p>
+<p><a class="reference external" href="https://github.com/mpitid/scripts/blob/master/checksum">checksum</a> is a script that calculates multiple checksums on files
+without reading them multiple times. This is most likely faster if you
+want to calculate multiple different checksums of large files (for
+whatever reason), since I/O tends to be the bottleneck in such&nbsp;cases.</p>
+<p><a class="reference external" href="https://github.com/mpitid/scripts/blob/master/wgrep">wgrep</a> can be thought of as a combination of <tt class="docutils literal">wget</tt> and <tt class="docutils literal">grep</tt>. I
+use it to extract hyperlinks that match certain patterns from webpages.
+The pattern can refer to the <span class="caps">URL</span> itself, the text inside the anchor or
+the <span class="caps">URL</span> of an <span class="caps">IMG</span> element inside the anchor. For example, to download
+all the <span class="caps">JPEG</span> images in a webpage, one could use the&nbsp;following:</p>
+<div class="highlight"><pre>wgrep <span class="s1">&#39;\.jpg$&#39;</span> http://some.website.com/ | xargs wget --content-disposition
+</pre></div>
+<p><a class="reference external" href="https://github.com/mpitid/scripts/blob/master/zget">zget</a> is another handy script which downloads a zip or rar archive and
+extracts it in one go, deleting the archive&nbsp;afterwards.</p>
+</div>
+
+</section>
+        <section id="extras" class="body">
+                <div class="social">
+                        <h2>social</h2>
+                        <ul>
+                            <li><a href="/feeds/all.atom.xml" type="application/atom+xml" rel="alternate">atom feed</a></li>
+
+                        </ul>
+                </div><!-- /.social -->
+        </section><!-- /#extras -->
+
+        <footer id="contentinfo" class="body">
+                <p>Powered by <a href="http://getpelican.com/">Pelican</a>. Theme <a href="https://github.com/blueicefield/pelican-blueidea/">blueidea</a>, inspired by the default theme.</p>
+        </footer><!-- /#contentinfo -->
+
+</body>
+</html>

@@ -1,0 +1,763 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom"><title>_</title><link href="/" rel="alternate"></link><link href="/feeds/misc.atom.xml" rel="self"></link><id>/</id><updated>2016-03-28T21:00:00+01:00</updated><entry><title>Moving to pelican</title><link href="/moving-to-pelican.html" rel="alternate"></link><updated>2016-03-28T21:00:00+01:00</updated><author><name>michaelp</name></author><id>tag:,2016-03-28:moving-to-pelican.html</id><summary type="html">&lt;p&gt;It&amp;#8217;s been a while since I&amp;#8217;ve written anything for this site. In the
+meantime, &lt;a class="reference external" href="https://jaspervdj.be/hakyll"&gt;Hakyll&lt;/a&gt; has changed significantly enough to break my previous
+setup and I&amp;#8217;ve been itching to try a different site&amp;nbsp;generator.&lt;/p&gt;
+&lt;p&gt;After a bit of research, I&amp;#8217;ve decided to try out &lt;a class="reference external" href="http://getpelican.com"&gt;Pelican&lt;/a&gt;. It&amp;#8217;s tailored
+to blog sites, has comprehensive documentation and is written in
+&lt;a class="reference external" href="https://www.python.org"&gt;Python&lt;/a&gt;, which means it will be easier for me to wrap my head around it
+if I have&amp;nbsp;to.&lt;/p&gt;
+&lt;p&gt;While I&amp;#8217;ve been using &lt;a class="reference external" href="https://daringfireball.net/projects/markdown"&gt;Markdown&lt;/a&gt; heavily for the past few years, it has
+some serious limitations when it comes to writing extensive
+documentation in it (captured succinctly in a &lt;a class="reference external" href="http://ericholscher.com/blog/2016/mar/15/dont-use-markdown-for-technical-docs/"&gt;blog by Erich
+Holcher&lt;/a&gt;). Hence, I&amp;#8217;m taking this opportunity to re-evaluate
+&lt;a class="reference external" href="http://docutils.sourceforge.net/rst.html"&gt;reStructuredText&lt;/a&gt;, and probably &lt;a class="reference external" href="http://www.methods.co.nz/asciidoc"&gt;Asciidoc&lt;/a&gt; at some later&amp;nbsp;point.&lt;/p&gt;
+&lt;p&gt;I have migrated most of the old content, and I&amp;#8217;ll be updating the theme
+in the upcoming weeks as I add new&amp;nbsp;entries.&lt;/p&gt;
+</summary><category term="markup"></category><category term="meta"></category></entry><entry><title>meta-python</title><link href="/meta-python.html" rel="alternate"></link><updated>2012-11-01T00:00:00+00:00</updated><author><name>michaelp</name></author><id>tag:,2012-11-01:meta-python.html</id><summary type="html">&lt;p&gt;One of the great things about Python is the meta-programming facilities.
+I quite enjoy abusing language features that I like, and this post
+describes two such examples I&amp;#8217;ve grown fond of. While their place in
+production code might be questionable, I have found them quite handy in
+various quick&amp;nbsp;scripts.&lt;/p&gt;
+&lt;p&gt;I will present two examples, both of which rely on decorators
+&lt;a class="footnote-reference" href="#decorators" id="id1"&gt;[1]&lt;/a&gt;. The first example provides a way to automatically
+&lt;a class="reference external" href="https://en.wikipedia.org/wiki/Memoization"&gt;memoize&lt;/a&gt; the results of a function. Assuming the function has no
+side-effects, calling it with the same argument list should produce the
+same result, thus saving computation time at the expense of space. Such
+a decorator can be defined as&amp;nbsp;follows:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="k"&gt;class&lt;/span&gt; &lt;span class="nc"&gt;Memoized&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nb"&gt;object&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+    &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;__init__&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;function&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+        &lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;function&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;function&lt;/span&gt;
+        &lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;mem&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="p"&gt;{}&lt;/span&gt;
+    &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;__call__&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="o"&gt;*&lt;/span&gt;&lt;span class="n"&gt;args&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="o"&gt;**&lt;/span&gt;&lt;span class="n"&gt;kwargs&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+        &lt;span class="n"&gt;key&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;args&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="nb"&gt;tuple&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;kwargs&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;iteritems&lt;/span&gt;&lt;span class="p"&gt;())&lt;/span&gt;
+        &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="n"&gt;key&lt;/span&gt; &lt;span class="ow"&gt;in&lt;/span&gt; &lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;mem&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+            &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;mem&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="n"&gt;key&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;
+        &lt;span class="n"&gt;value&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;function&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="o"&gt;*&lt;/span&gt;&lt;span class="n"&gt;args&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="o"&gt;**&lt;/span&gt;&lt;span class="n"&gt;kwargs&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+        &lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;mem&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="n"&gt;key&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;value&lt;/span&gt;
+        &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;value&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;Note that the above code never deletes stored values, which can lead to
+long running programs running out of&amp;nbsp;memory.&lt;/p&gt;
+&lt;p&gt;Now it is very simple to use memoization without modifying a function,
+by merely adding the decorator before its definition (even if the source
+code is not available, any function object can be wrapped in this class
+at runtime). The following example converts a function which counts the
+number of times a word appears in a document to the memoized&amp;nbsp;equivalent:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="nd"&gt;@Memoized&lt;/span&gt;
+&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;occurences&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;word&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;words&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+    &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="nb"&gt;sum&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;w&lt;/span&gt; &lt;span class="o"&gt;==&lt;/span&gt; &lt;span class="n"&gt;word&lt;/span&gt; &lt;span class="k"&gt;for&lt;/span&gt; &lt;span class="n"&gt;w&lt;/span&gt; &lt;span class="ow"&gt;in&lt;/span&gt; &lt;span class="n"&gt;words&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;The second example stems from my fascination with the Python &lt;tt class="docutils literal"&gt;yield&lt;/tt&gt;
+statement. Quite often I find myself writing small functions which need
+to return a materialised sequence (e.g. a list or dictionary), but not
+small enough to nicely fit into say, a list comprehension. To avoid the
+tedious boilerplate of initializing the sequence, appending elements to
+it, and then returning the result, I&amp;#8217;ve resorted to the following
+scheme: I use a composition decorator, which takes the type of sequence
+as argument, and applies it to the result of a generator&amp;nbsp;function.&lt;/p&gt;
+&lt;p&gt;The end result, slightly generalised, is the&amp;nbsp;following:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;compose&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;f1&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;f2&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+    &lt;span class="k"&gt;assert&lt;/span&gt; &lt;span class="nb"&gt;callable&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;f1&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="ow"&gt;and&lt;/span&gt; &lt;span class="nb"&gt;callable&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;f2&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+    &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;composition&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="o"&gt;*&lt;/span&gt;&lt;span class="n"&gt;args&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="o"&gt;**&lt;/span&gt;&lt;span class="n"&gt;kwargs&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+        &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;f1&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;f2&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="o"&gt;*&lt;/span&gt;&lt;span class="n"&gt;args&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="o"&gt;**&lt;/span&gt;&lt;span class="n"&gt;kwargs&lt;/span&gt;&lt;span class="p"&gt;))&lt;/span&gt;
+    &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;composition&lt;/span&gt;
+
+&lt;span class="k"&gt;class&lt;/span&gt; &lt;span class="nc"&gt;Compose&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nb"&gt;object&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+    &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;__init__&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="o"&gt;*&lt;/span&gt;&lt;span class="n"&gt;functions&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+        &lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;functions&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;functions&lt;/span&gt;
+    &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;__call__&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;function&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+        &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="nb"&gt;reduce&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;compose&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;functions&lt;/span&gt; &lt;span class="o"&gt;+&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;function&lt;/span&gt;&lt;span class="p"&gt;,))&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;And here is how it could be used on a higher order function which
+applies arbitrary user functions to dictionary keys and/or&amp;nbsp;values:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;identity&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;x&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt; &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;x&lt;/span&gt;
+
+&lt;span class="c"&gt;# Original&lt;/span&gt;
+&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;dmap1&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;d&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;keys&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;identity&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;values&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;identity&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+    &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="nb"&gt;dict&lt;/span&gt;&lt;span class="p"&gt;((&lt;/span&gt;&lt;span class="n"&gt;keys&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;key&lt;/span&gt;&lt;span class="p"&gt;),&lt;/span&gt; &lt;span class="n"&gt;values&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;value&lt;/span&gt;&lt;span class="p"&gt;))&lt;/span&gt; &lt;span class="k"&gt;for&lt;/span&gt; &lt;span class="n"&gt;key&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;value&lt;/span&gt; &lt;span class="ow"&gt;in&lt;/span&gt; &lt;span class="n"&gt;d&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;iteritems&lt;/span&gt;&lt;span class="p"&gt;())&lt;/span&gt;
+
+&lt;span class="c"&gt;# Amended&lt;/span&gt;
+&lt;span class="nd"&gt;@Compose&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nb"&gt;dict&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;dmap2&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;d&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;keys&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;identity&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;values&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;identity&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+    &lt;span class="k"&gt;for&lt;/span&gt; &lt;span class="n"&gt;key&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;value&lt;/span&gt; &lt;span class="ow"&gt;in&lt;/span&gt; &lt;span class="n"&gt;d&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;iteritems&lt;/span&gt;&lt;span class="p"&gt;():&lt;/span&gt;
+        &lt;span class="k"&gt;yield&lt;/span&gt; &lt;span class="n"&gt;keys&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;key&lt;/span&gt;&lt;span class="p"&gt;),&lt;/span&gt; &lt;span class="n"&gt;values&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;value&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;The previous example was hardly an improvement in terms of code size,
+but some more elaborate examples are hopefully more&amp;nbsp;motivating:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="nd"&gt;@Compose&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nb"&gt;tuple&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;take&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;n&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;items&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+    &lt;span class="k"&gt;assert&lt;/span&gt; &lt;span class="n"&gt;n&lt;/span&gt; &lt;span class="o"&gt;&amp;gt;=&lt;/span&gt; &lt;span class="mi"&gt;0&lt;/span&gt;
+    &lt;span class="k"&gt;for&lt;/span&gt; &lt;span class="n"&gt;i&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;item&lt;/span&gt; &lt;span class="ow"&gt;in&lt;/span&gt; &lt;span class="nb"&gt;enumerate&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;items&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+        &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="n"&gt;i&lt;/span&gt; &lt;span class="o"&gt;&amp;gt;=&lt;/span&gt; &lt;span class="n"&gt;n&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+            &lt;span class="k"&gt;break&lt;/span&gt;
+        &lt;span class="k"&gt;yield&lt;/span&gt; &lt;span class="n"&gt;item&lt;/span&gt;
+
+&lt;span class="nd"&gt;@Compose&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nb"&gt;set&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;words_of&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;dictionary&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+    &lt;span class="sd"&gt;&amp;quot;&amp;quot;&amp;quot;Return the set of words in a hunspell dictionary file.&amp;quot;&amp;quot;&amp;quot;&lt;/span&gt;
+    &lt;span class="k"&gt;with&lt;/span&gt; &lt;span class="nb"&gt;open&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;dictionary&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="k"&gt;as&lt;/span&gt; &lt;span class="n"&gt;f&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+        &lt;span class="n"&gt;f&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;readline&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt; &lt;span class="c"&gt;# Skip word count&lt;/span&gt;
+        &lt;span class="k"&gt;for&lt;/span&gt; &lt;span class="n"&gt;line&lt;/span&gt; &lt;span class="ow"&gt;in&lt;/span&gt; &lt;span class="n"&gt;f&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+            &lt;span class="k"&gt;yield&lt;/span&gt; &lt;span class="n"&gt;line&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;split&lt;/span&gt;&lt;span class="p"&gt;()[&lt;/span&gt;&lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;split&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s"&gt;&amp;#39;/&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;)[&lt;/span&gt;&lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;lower&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;The composition decorator is quite general, and can be applied to
+different scenarios as well. In addition, multiple decorators can be
+chained together. For example, to produce a &lt;em&gt;sorted&lt;/em&gt; sequence of
+&lt;em&gt;unique&lt;/em&gt; tokens in a collection of documents, one could write the&amp;nbsp;following:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;re&lt;/span&gt;
+
+&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;tokenize&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;data&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+    &lt;span class="k"&gt;for&lt;/span&gt; &lt;span class="n"&gt;token&lt;/span&gt; &lt;span class="ow"&gt;in&lt;/span&gt; &lt;span class="n"&gt;re&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;split&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s"&gt;&amp;#39;[\s:;!?-]+&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;data&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+        &lt;span class="n"&gt;token&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;token&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;lower&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;strip&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;&amp;quot;&amp;quot;()[]{},.&amp;quot;&amp;#39;&amp;quot;&amp;quot;&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+        &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="n"&gt;token&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+            &lt;span class="k"&gt;yield&lt;/span&gt; &lt;span class="n"&gt;token&lt;/span&gt;
+
+&lt;span class="nd"&gt;@Compose&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nb"&gt;sorted&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="nb"&gt;set&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;all_words&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;documents&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+    &lt;span class="sd"&gt;&amp;quot;&amp;quot;&amp;quot;Retrieve the set of unique words in a document, after tokenization.&amp;quot;&amp;quot;&amp;quot;&lt;/span&gt;
+    &lt;span class="k"&gt;for&lt;/span&gt; &lt;span class="n"&gt;document&lt;/span&gt; &lt;span class="ow"&gt;in&lt;/span&gt; &lt;span class="n"&gt;documents&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;itervalues&lt;/span&gt;&lt;span class="p"&gt;():&lt;/span&gt;
+        &lt;span class="k"&gt;for&lt;/span&gt; &lt;span class="n"&gt;word&lt;/span&gt; &lt;span class="ow"&gt;in&lt;/span&gt; &lt;span class="n"&gt;tokenize&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;document&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+            &lt;span class="k"&gt;yield&lt;/span&gt; &lt;span class="n"&gt;word&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;Using decorators in this manner has proven quite helpful in prototypes
+and rapidly changing&amp;nbsp;code.&lt;/p&gt;
+&lt;table class="docutils footnote" frame="void" id="decorators" rules="none"&gt;
+&lt;colgroup&gt;&lt;col class="label" /&gt;&lt;col /&gt;&lt;/colgroup&gt;
+&lt;tbody valign="top"&gt;
+&lt;tr&gt;&lt;td class="label"&gt;&lt;a class="fn-backref" href="#id1"&gt;[1]&lt;/a&gt;&lt;/td&gt;&lt;td&gt;For a nice introduction to decorators I recommend the series of tutorials by Bruce Eckel (part &lt;a class="reference external" href="http://www.artima.com/weblogs/viewpost.jsp?thread=240808"&gt;1&lt;/a&gt;, &lt;a class="reference external" href="http://www.artima.com/weblogs/viewpost.jsp?thread=240845"&gt;2&lt;/a&gt;, and &lt;a class="reference external" href="http://www.artima.com/weblogs/viewpost.jsp?thread=241209"&gt;3&lt;/a&gt;).&lt;/td&gt;&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+</summary><category term="python"></category><category term="meta-programming"></category></entry><entry><title>inotify; build</title><link href="/inotify-build.html" rel="alternate"></link><updated>2012-10-11T00:00:00+01:00</updated><author><name>michaelp</name></author><id>tag:,2012-10-11:inotify-build.html</id><summary type="html">&lt;p&gt;A few months ago, when I started using Scala more seriously, I
+familiarised myself with &lt;a class="reference external" href="http://www.scala-sbt.org"&gt;sbt&lt;/a&gt; after seeing it touted as the recommended
+build tool here and there. Despite some grievances with this
+not-so-simple build tool, I did find one of its features rather handy:
+automatically executing compile or test actions whenever a file changed
+(quite similar to hakyll&amp;#8217;s preview&amp;nbsp;feature).&lt;/p&gt;
+&lt;p&gt;In fact, I got used to this feature so much that I decided I needed it
+for other projects, like automatically running LaTeX for me, or updating
+&lt;a class="reference external" href="http://ikiwiki.info"&gt;ikiwiki&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;It turns out this was fairly simple to implement with &lt;a class="reference external" href="https://github.com/rvoicilas/inotify-tools/wiki"&gt;inotify-tools&lt;/a&gt;
+doing all the heavy lifting, with regard to monitoring files for changes
+and generating appropriate events. All that remained was wrapping it up
+in a suitable script I called &lt;tt class="docutils literal"&gt;monitor&lt;/tt&gt;, to only act on files that
+match a particular regular&amp;nbsp;expression:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;TARGET=&amp;quot;$1&amp;quot;
+PATTERN=&amp;quot;$2&amp;quot;
+COMMAND=(&amp;quot;${@:3}&amp;quot;)
+
+[[ $# -lt 3 ]] &amp;amp;&amp;amp; {
+ echo &amp;quot;usage: $0 &amp;lt;watched-dir&amp;gt; &amp;lt;file-pattern&amp;gt; &amp;lt;command&amp;gt;&amp;quot;
+ exit 1 }
+
+EVENTS=(modify delete)
+
+inotifywait -r -m -e ${(j.,.)EVENTS} --format &amp;quot;%w%f&amp;quot; $TARGET \
+| egrep --line-buffered &amp;quot;$PATTERN&amp;quot; | while read file; do
+  echo &amp;quot;event: $file&amp;quot;
+  $COMMAND
+done
+&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;I could then run the following command to continuously build my&amp;nbsp;ikiwiki:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;monitor path/to/wiki &lt;span class="s1"&gt;&amp;#39;\.mkdn$|\.mdwn$&amp;#39;&lt;/span&gt; ikiwiki --setup ~/wiki.setup
+&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;or generate my LaTeX reports (given a suitable&amp;nbsp;Makefile):&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;monitor path/to/tex &lt;span class="s1"&gt;&amp;#39;\.tex$|\.bib$&amp;#39;&lt;/span&gt; make
+&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;The script is also available on &lt;a class="reference external" href="https://github.com/mpitid/scripts/blob/master/monitor"&gt;github&lt;/a&gt; as part of a collection of
+scripts I have found a use for from time to&amp;nbsp;time.&lt;/p&gt;
+</summary><category term="scripts"></category><category term="utilities"></category></entry><entry><title>Benchmark Load Balancing</title><link href="/benchmark-load-balancing.html" rel="alternate"></link><updated>2012-02-08T00:00:00+00:00</updated><author><name>michaelp</name></author><id>tag:,2012-02-08:benchmark-load-balancing.html</id><summary type="html">&lt;div class="section" id="the-problem"&gt;
+&lt;h2&gt;The&amp;nbsp;Problem&lt;/h2&gt;
+&lt;p&gt;I am always looking for ways to turn boring school assignments to fun
+projects . A recent one involves the execution of a handful of &lt;a class="reference external" href="http://www.spec.org/cpu2006/"&gt;spec&lt;/a&gt;
+benchmarks for a random set of &lt;a class="reference external" href="http://gcc.gnu.org/onlinedocs/gcc-4.4.5/gcc/Optimize-Options.html"&gt;gcc flags&lt;/a&gt; for my Compiler Optimisation
+course. This presents a slight challenge as the set of flags times the
+repetition count for each benchmark adds up to a rather large total
+execution time. Hence, parallelizing benchmark execution seemed
+reasonable and a fun-enough&amp;nbsp;challenge.&lt;/p&gt;
+&lt;p&gt;My initial approach was to load balance the benchmarks on the school&amp;#8217;s
+16-core &lt;tt class="docutils literal"&gt;compute&lt;/tt&gt; machine (2 Intel X5550 Quad Cores with
+HyperThreading).  This boiled down to generating the necessary commands
+&amp;#8212;making sure each command is allocated to a specific core with
+&lt;tt class="docutils literal"&gt;taskset&lt;/tt&gt;&amp;#8212; and piping them to &lt;tt class="docutils literal"&gt;xargs &lt;span class="pre"&gt;-L&lt;/span&gt; 1 &lt;span class="pre"&gt;-P&lt;/span&gt; $(fgrep &lt;span class="pre"&gt;-c&lt;/span&gt; name
+/proc/cpuinfo)&lt;/tt&gt;.  This approach produced very large deviations however.
+This was partly because the machine was already under heavy load by
+other users &amp;#8212;so distributing the tasks to individual CPUs instead of
+cores did not give significantly smaller deviations&amp;nbsp;either.&lt;/p&gt;
+&lt;p&gt;My next thought was to schedule the benchmarks on regular login
+machines, most of which sit idly during the night, or even most of the
+day. Running on diverse hardware is not an issue &amp;#8212;as long as a single
+benchmark is executed on the same machine for all different flag
+combinations&amp;#8212; since I don&amp;#8217;t care about relative performance across
+benchmarks. One problem with this approach however, was that it involved
+finding &lt;em&gt;properly functioning&lt;/em&gt; machines which are unlikely to be used,
+and noting down their host&amp;nbsp;names.&lt;/p&gt;
+&lt;/div&gt;
+&lt;div class="section" id="the-solution"&gt;
+&lt;h2&gt;The&amp;nbsp;Solution&lt;/h2&gt;
+&lt;p&gt;So I kept putting it off, until I became aware of a &lt;a class="reference external" href="http://project.shearn89.com"&gt;cool undergraduate
+project&lt;/a&gt;. The project lists all login machines and their availability
+and could not have come at a more convenient&amp;nbsp;time.&lt;/p&gt;
+&lt;p&gt;I quickly wrote down a script to scrape the &lt;tt class="docutils literal"&gt;available&lt;/tt&gt; page and
+distribute each separate benchmark to one&amp;nbsp;machine.&lt;/p&gt;
+&lt;p&gt;The &lt;tt class="docutils literal"&gt;distribute&lt;/tt&gt; script finds available machines and submits a job via
+ssh. For some reason I could not use &lt;a class="reference external" href="http://www.gnu.org/software/screen/"&gt;screen&lt;/a&gt; or &lt;a class="reference external" href="http://tmux.sourceforge.net/"&gt;tmux&lt;/a&gt;, since they
+would get killed as soon as the ssh session terminated. So I had to
+resort to good old &lt;tt class="docutils literal"&gt;nohup&lt;/tt&gt;. Furthermore, I opted for &lt;tt class="docutils literal"&gt;zsh&lt;/tt&gt; on this one
+since I was fed-up with the annoying idiosyncrasies of bash when it
+comes to separator handling &amp;#8212;I couldn&amp;#8217;t get the &lt;span class="caps"&gt;HOST&lt;/span&gt; array to split
+properly on&amp;nbsp;newlines.&lt;/p&gt;
+&lt;dl class="docutils"&gt;
+&lt;dt&gt;distribute&lt;/dt&gt;
+&lt;dd&gt;&lt;div class="first last"&gt;&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="c"&gt;#!/bin/zsh&lt;/span&gt;
+&lt;span class="c"&gt;# Distribute computation across different machines.&lt;/span&gt;
+
+&lt;span class="c"&gt;# Parse lines in the following format to retrieve hosts:&lt;/span&gt;
+&lt;span class="c"&gt;# &amp;lt;span class=&amp;#39;label label-success&amp;#39;&amp;gt;bazzini.inf.ed.ac.uk&amp;lt;/span&amp;gt;&lt;/span&gt;
+&lt;span class="nv"&gt;HOSTS&lt;/span&gt;&lt;span class="o"&gt;=(&lt;/span&gt;&lt;span class="k"&gt;$(&lt;/span&gt;wget -O - http://project.shearn89.com/available &lt;span class="se"&gt;\&lt;/span&gt;
+       | sed -rn &lt;span class="s1"&gt;&amp;#39;/label-success/ s/.*&amp;gt;([^&amp;lt;]+)&amp;lt;.*/\1/p&amp;#39;&lt;/span&gt;&lt;span class="k"&gt;)&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt;
+&lt;span class="nv"&gt;i&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;1
+&lt;span class="k"&gt;for &lt;/span&gt;src in &lt;span class="nv"&gt;$@&lt;/span&gt;; &lt;span class="k"&gt;do&lt;/span&gt;
+&lt;span class="k"&gt;    &lt;/span&gt;&lt;span class="nv"&gt;host&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="k"&gt;${&lt;/span&gt;&lt;span class="nv"&gt;HOSTS&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="k"&gt;$((&lt;/span&gt; i++ &lt;span class="k"&gt;))&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;&lt;span class="k"&gt;}&lt;/span&gt;
+    ssh -n &lt;span class="nv"&gt;$host&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;nohup ./runjob $src&amp;quot;&lt;/span&gt; &amp;amp;
+&lt;span class="k"&gt;done&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+&lt;/div&gt;&lt;/dd&gt;
+&lt;/dl&gt;
+&lt;p&gt;The &lt;tt class="docutils literal"&gt;runjob&lt;/tt&gt; script simply changes into my project directory and
+executes the benchmark, while logging some information like which
+benchmark is matched to which&amp;nbsp;machine.&lt;/p&gt;
+&lt;dl class="docutils"&gt;
+&lt;dt&gt;runjob&lt;/dt&gt;
+&lt;dd&gt;&lt;div class="first last"&gt;&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="c"&gt;#!/bin/bash&lt;/span&gt;
+
+&lt;span class="nv"&gt;src&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="k"&gt;$(&lt;/span&gt;basename &lt;span class="nv"&gt;$1&lt;/span&gt;&lt;span class="k"&gt;)&lt;/span&gt;
+&lt;span class="nb"&gt;cd &lt;/span&gt;msc/copt1
+&lt;span class="nv"&gt;joblog&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;info.$src.$(hostname).log&amp;quot;&lt;/span&gt;
+date +&lt;span class="s1"&gt;&amp;#39;%F %T&amp;#39;&lt;/span&gt; &amp;gt;&amp;gt; &lt;span class="nv"&gt;$joblog&lt;/span&gt;
+cat /proc/cpuinfo  &amp;gt;&amp;gt; &lt;span class="nv"&gt;$joblog&lt;/span&gt;
+taskset -c 1 ./benchmark &lt;span class="nv"&gt;$@&lt;/span&gt;
+&lt;span class="nb"&gt;echo&lt;/span&gt; &lt;span class="nv"&gt;$?&lt;/span&gt; &lt;span class="nv"&gt;$@&lt;/span&gt; &amp;gt;&amp;gt; &lt;span class="s2"&gt;&amp;quot;$joblog&amp;quot;&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+&lt;/div&gt;&lt;/dd&gt;
+&lt;/dl&gt;
+&lt;p&gt;The &lt;tt class="docutils literal"&gt;benchmark&lt;/tt&gt; script is responsible for reading available flags,
+compiling a benchmark and then executing it for a certain number of
+iterations. After execution is complete, average runtime and standard
+deviation are calculated with a simple &lt;a class="reference external" href="http://www.gnu.org/software/gawk/"&gt;awk&lt;/a&gt; script, &lt;tt class="docutils literal"&gt;stats.awk&lt;/tt&gt;.&lt;/p&gt;
+&lt;dl class="docutils"&gt;
+&lt;dt&gt;benchmark&lt;/dt&gt;
+&lt;dd&gt;&lt;div class="first last"&gt;&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="c"&gt;#!/bin/bash&lt;/span&gt;
+
+&lt;span class="nv"&gt;SRC&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;$1&amp;quot;&lt;/span&gt;
+&lt;span class="nv"&gt;DST&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;${2:-$(pwd)/out}&amp;quot;&lt;/span&gt;
+&lt;span class="nv"&gt;FLAGS&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;${3:-200-flags}&amp;quot;&lt;/span&gt;
+&lt;span class="nv"&gt;TIMES&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;${4:-12}&amp;quot;&lt;/span&gt;
+
+die&lt;span class="o"&gt;()&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt; &lt;span class="nb"&gt;echo&lt;/span&gt; &lt;span class="nv"&gt;$@&lt;/span&gt;; &lt;span class="nb"&gt;exit &lt;/span&gt;1; &lt;span class="o"&gt;}&lt;/span&gt;
+
+&lt;span class="o"&gt;[[&lt;/span&gt; -z &lt;span class="s2"&gt;&amp;quot;$SRC&amp;quot;&lt;/span&gt; &lt;span class="o"&gt;]]&lt;/span&gt; &lt;span class="o"&gt;&amp;amp;&amp;amp;&lt;/span&gt; die &lt;span class="s2"&gt;&amp;quot;usage: $0 src [dst=$DST] [flags=$FLAGS] [times=$TIMES]&amp;quot;&lt;/span&gt;
+
+&lt;span class="nv"&gt;name&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;$(basename $SRC)&amp;quot;&lt;/span&gt;
+&lt;span class="nv"&gt;dst&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;$DST/$name&amp;quot;&lt;/span&gt;
+mkdir -p &lt;span class="s2"&gt;&amp;quot;$dst&amp;quot;&lt;/span&gt; &lt;span class="o"&gt;||&lt;/span&gt; die &lt;span class="s2"&gt;&amp;quot;Failed to create output directory $dst&amp;quot;&lt;/span&gt;
+
+&lt;span class="nv"&gt;log&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;$dst/run.log&amp;quot;&lt;/span&gt;
+&lt;span class="nv"&gt;buildlog&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;$dst/build.log&amp;quot;&lt;/span&gt;
+
+&lt;span class="nv"&gt;f&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;0
+&lt;span class="k"&gt;while &lt;/span&gt;&lt;span class="nb"&gt;read &lt;/span&gt;flags; &lt;span class="k"&gt;do&lt;/span&gt;
+    &lt;span class="o"&gt;((&lt;/span&gt; f++ &lt;span class="o"&gt;))&lt;/span&gt;
+    &lt;span class="nv"&gt;file&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;$(printf $dst/%03d.times $f)&amp;quot;&lt;/span&gt;
+    &lt;span class="nv"&gt;run&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="k"&gt;$(&lt;/span&gt;&lt;span class="nb"&gt;printf&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;$(basename $SRC) %03d&amp;quot;&lt;/span&gt; &lt;span class="nv"&gt;$f&lt;/span&gt;&lt;span class="k"&gt;)&lt;/span&gt;
+    &lt;span class="nb"&gt;echo&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;$(date +&amp;#39;%F %T&amp;#39;) $run $flags&amp;quot;&lt;/span&gt; | tee -a &lt;span class="s2"&gt;&amp;quot;$log&amp;quot;&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;$buildlog&amp;quot;&lt;/span&gt;
+
+    make -s -C &lt;span class="s2"&gt;&amp;quot;$SRC/src&amp;quot;&lt;/span&gt; &lt;span class="nv"&gt;CFLAGS&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;$flags&amp;quot;&lt;/span&gt; 1&amp;gt;/dev/null 2&amp;gt;&amp;gt;&lt;span class="nv"&gt;$buildlog&lt;/span&gt; &lt;span class="se"&gt;\&lt;/span&gt;
+      &lt;span class="o"&gt;||&lt;/span&gt; die &lt;span class="s2"&gt;&amp;quot;Failed to build $SRC&amp;quot;&lt;/span&gt;
+
+    &lt;span class="nb"&gt;pushd&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;$SRC&amp;quot;&lt;/span&gt;
+    &lt;span class="k"&gt;for &lt;/span&gt;i in  &lt;span class="k"&gt;$(&lt;/span&gt;seq &lt;span class="nv"&gt;$TIMES&lt;/span&gt;&lt;span class="k"&gt;)&lt;/span&gt;; &lt;span class="k"&gt;do&lt;/span&gt;
+        /usr/bin/time --output&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;$file&amp;quot;&lt;/span&gt; --append &lt;span class="se"&gt;\&lt;/span&gt;
+                      --format&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;r %e k %S u %U csi %c csv %w&amp;#39;&lt;/span&gt; &lt;span class="se"&gt;\&lt;/span&gt;
+                      ./run.sh 1&amp;gt;/dev/null 2&amp;gt;&amp;gt;&lt;span class="nv"&gt;$log&lt;/span&gt;
+    &lt;span class="k"&gt;done&lt;/span&gt;
+&lt;span class="k"&gt;    &lt;/span&gt;&lt;span class="nb"&gt;popd&lt;/span&gt;
+
+&lt;span class="nb"&gt;    echo&lt;/span&gt; -e &lt;span class="s2"&gt;&amp;quot;$name\n$flags\n$(./stats.awk $file)&amp;quot;&lt;/span&gt; &lt;span class="se"&gt;\&lt;/span&gt;
+       | tee -a &lt;span class="s2"&gt;&amp;quot;$dst/results.txt&amp;quot;&lt;/span&gt; | tail -n 1
+&lt;span class="k"&gt;done&lt;/span&gt; &amp;lt; &lt;span class="nv"&gt;$FLAGS&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+&lt;/div&gt;&lt;/dd&gt;
+&lt;dt&gt;stats.awk&lt;/dt&gt;
+&lt;dd&gt;&lt;div class="first last"&gt;&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="c1"&gt;#!/usr/bin/awk -f&lt;/span&gt;
+
+&lt;span class="sr"&gt;/^r/&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+    &lt;span class="c1"&gt;# Sum kernel/user CPU time and convert to milliseconds.&lt;/span&gt;
+    &lt;span class="nx"&gt;cpu&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="mi"&gt;1000&lt;/span&gt; &lt;span class="o"&gt;*&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="o"&gt;$&lt;/span&gt;&lt;span class="mi"&gt;4&lt;/span&gt; &lt;span class="o"&gt;+&lt;/span&gt; &lt;span class="o"&gt;$&lt;/span&gt;&lt;span class="mi"&gt;6&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+    &lt;span class="nx"&gt;sum&lt;/span&gt; &lt;span class="o"&gt;+=&lt;/span&gt; &lt;span class="nx"&gt;cpu&lt;/span&gt;
+    &lt;span class="nx"&gt;ssq&lt;/span&gt; &lt;span class="o"&gt;+=&lt;/span&gt; &lt;span class="nx"&gt;cpu&lt;/span&gt; &lt;span class="o"&gt;*&lt;/span&gt; &lt;span class="nx"&gt;cpu&lt;/span&gt;
+    &lt;span class="kr"&gt;printf&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;%d &amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="nx"&gt;cpu&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="p"&gt;}&lt;/span&gt;
+
+&lt;span class="nx"&gt;END&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+    &lt;span class="c1"&gt;# Print a line with average runtime and standard deviation.&lt;/span&gt;
+    &lt;span class="nx"&gt;avg&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="nx"&gt;sum&lt;/span&gt; &lt;span class="o"&gt;/&lt;/span&gt; &lt;span class="nb"&gt;NR&lt;/span&gt;
+    &lt;span class="nx"&gt;var&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="nx"&gt;ssq&lt;/span&gt; &lt;span class="o"&gt;/&lt;/span&gt; &lt;span class="nb"&gt;NR&lt;/span&gt; &lt;span class="o"&gt;-&lt;/span&gt; &lt;span class="nx"&gt;avg&lt;/span&gt; &lt;span class="o"&gt;*&lt;/span&gt; &lt;span class="nx"&gt;avg&lt;/span&gt;
+    &lt;span class="kr"&gt;printf&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;\n%.2f %.2f\n&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="nx"&gt;avg&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="kr"&gt;sqrt&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nx"&gt;var&lt;/span&gt;&lt;span class="p"&gt;))&lt;/span&gt;
+&lt;span class="p"&gt;}&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+&lt;/div&gt;&lt;/dd&gt;
+&lt;/dl&gt;
+&lt;p&gt;There is no need to move files since I am taking advantage of &lt;a class="reference external" href="http://en.wikipedia.org/wiki/Andrew_File_System"&gt;&lt;span class="caps"&gt;AFS&lt;/span&gt;&lt;/a&gt;, both
+for the benchmark source and output files. Adding appropriate commands
+to set up a proper environment on local storage should be trivial&amp;nbsp;however.&lt;/p&gt;
+&lt;div class="section" id="future-work"&gt;
+&lt;h3&gt;Future&amp;nbsp;Work&lt;/h3&gt;
+&lt;p&gt;The distribution scripts are a bit rough and assigning jobs to machines
+randomly is not the best approach. For example, some machines are i3
+Quad Cores at 3.0GHz, while others are dated Core 2 Duo at 1.8GHz. It
+should be relatively straightforward to retrieve the specs of each
+machine and assign benchmarks to machines with adequate performance and
+no load &amp;#8212;ideally such information should be provided in the original
+listing though. For example, the following script generates such a&amp;nbsp;list:&lt;/p&gt;
+&lt;dl class="docutils"&gt;
+&lt;dt&gt;machines&lt;/dt&gt;
+&lt;dd&gt;&lt;div class="first last"&gt;&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="c"&gt;#!/bin/bash&lt;/span&gt;
+
+stathosts&lt;span class="o"&gt;()&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt;
+    &lt;span class="k"&gt;while &lt;/span&gt;&lt;span class="nb"&gt;read &lt;/span&gt;host; &lt;span class="k"&gt;do&lt;/span&gt;
+        &lt;span class="o"&gt;[[&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;$host&amp;quot;&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;Available&amp;quot;&lt;/span&gt; &lt;span class="o"&gt;]]&lt;/span&gt; &lt;span class="o"&gt;&amp;amp;&amp;amp;&lt;/span&gt; &lt;span class="k"&gt;continue&lt;/span&gt;
+&lt;span class="k"&gt;        &lt;/span&gt;&lt;span class="nb"&gt;echo&lt;/span&gt; &lt;span class="nv"&gt;$host&lt;/span&gt;
+        ssh -nT &lt;span class="nv"&gt;$host&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;fgrep name /proc/cpuinfo; uptime; exit&amp;#39;&lt;/span&gt;
+        &lt;span class="nb"&gt;echo&lt;/span&gt;
+&lt;span class="nb"&gt;    &lt;/span&gt;&lt;span class="k"&gt;done&lt;/span&gt;
+&lt;span class="o"&gt;}&lt;/span&gt;
+
+wget -O - http://project.shearn89.com/available |&lt;span class="se"&gt;\&lt;/span&gt;
+sed -rn &lt;span class="s1"&gt;&amp;#39;/label-success/ s/.*&amp;gt;([^&amp;lt;]+)&amp;lt;.*/\1/p&amp;#39;&lt;/span&gt;  |&lt;span class="se"&gt;\&lt;/span&gt;
+stathosts &amp;gt; &lt;span class="k"&gt;${&lt;/span&gt;&lt;span class="nv"&gt;1&lt;/span&gt;&lt;span class="k"&gt;:-&lt;/span&gt;&lt;span class="nv"&gt;host&lt;/span&gt;&lt;span class="p"&gt;.stats&lt;/span&gt;&lt;span class="k"&gt;}&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+&lt;/div&gt;&lt;/dd&gt;
+&lt;/dl&gt;
+&lt;p&gt;It is then just a matter of turning this information into a usable
+heuristic. The benchmarks could be also ranked slowest to fastest with a
+script like the&amp;nbsp;following:&lt;/p&gt;
+&lt;dl class="docutils"&gt;
+&lt;dt&gt;rank&lt;/dt&gt;
+&lt;dd&gt;&lt;div class="first last"&gt;&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="c"&gt;#!/bin/bash&lt;/span&gt;
+
+&lt;span class="k"&gt;for &lt;/span&gt;src in &lt;span class="nv"&gt;$@&lt;/span&gt;; &lt;span class="k"&gt;do&lt;/span&gt;
+&lt;span class="k"&gt;    &lt;/span&gt;make -C &lt;span class="nv"&gt;$src&lt;/span&gt;/src &amp;amp;&amp;gt;/dev/null
+    &lt;span class="nb"&gt;pushd&lt;/span&gt; &lt;span class="nv"&gt;$src&lt;/span&gt; &amp;amp;&amp;gt;/dev/null
+    /usr/bin/time --format&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;%e&amp;#39;&lt;/span&gt; --output&lt;span class="o"&gt;=&lt;/span&gt;&amp;gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="nb"&gt;read &lt;/span&gt;t; &lt;span class="nb"&gt;echo&lt;/span&gt; &lt;span class="nv"&gt;$t&lt;/span&gt; &lt;span class="k"&gt;$(&lt;/span&gt;basename &lt;span class="nv"&gt;$src&lt;/span&gt;&lt;span class="k"&gt;)&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt; &lt;span class="se"&gt;\&lt;/span&gt;
+                  taskset -c 0 ./run.sh &amp;amp;&amp;gt;/dev/null
+    &lt;span class="nb"&gt;popd&lt;/span&gt; &amp;amp;&amp;gt;/dev/null
+&lt;span class="k"&gt;done&lt;/span&gt; | sort -rgk 1 | cut -d&lt;span class="s1"&gt;&amp;#39; &amp;#39;&lt;/span&gt; -f 2
+&lt;/pre&gt;&lt;/div&gt;
+&lt;/div&gt;&lt;/dd&gt;
+&lt;/dl&gt;
+&lt;p&gt;Finally, the distribution script assumes there will always be more
+machines than benchmarks, which might not always be the&amp;nbsp;case.&lt;/p&gt;
+&lt;/div&gt;
+&lt;div class="section" id="update-2012-02-24"&gt;
+&lt;h3&gt;Update&amp;nbsp;(2012-02-24)&lt;/h3&gt;
+&lt;p&gt;I came up with a heuristic, a bit rough but does the job. It takes into
+account the frequency of the &lt;span class="caps"&gt;CPU&lt;/span&gt;, a user-supplied weight based on its
+type, and the system load. In the end, I decided to stick to a single
+&lt;span class="caps"&gt;CPU&lt;/span&gt; type, so that my results were directly comparable across benchmarks.
+To do that I just set all non-i3 multipliers to 0 in the following
+&lt;tt class="docutils literal"&gt;rankhost&lt;/tt&gt; script.&lt;/p&gt;
+&lt;dl class="docutils"&gt;
+&lt;dt&gt;rankhosts&lt;/dt&gt;
+&lt;dd&gt;&lt;div class="first last"&gt;&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="c"&gt;#!/bin/bash&lt;/span&gt;
+
+&lt;span class="c"&gt;# Set the multipliers depending on the processor model.&lt;/span&gt;
+&lt;span class="nv"&gt;FACTOR_I3&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;1.8 &lt;span class="c"&gt;# Core i3&lt;/span&gt;
+&lt;span class="nv"&gt;FACTOR_CD&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;1.0 &lt;span class="c"&gt;# Core 2 Duo&lt;/span&gt;
+&lt;span class="nv"&gt;FACTOR_C2&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;0.8 &lt;span class="c"&gt;# Core 2&lt;/span&gt;
+
+cpu_core&lt;span class="o"&gt;()&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt;
+    fgrep -c name /proc/cpuinfo
+&lt;span class="o"&gt;}&lt;/span&gt;
+
+cpu_freq&lt;span class="o"&gt;()&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt;
+    &lt;span class="nv"&gt;name&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="k"&gt;$(&lt;/span&gt;fgrep name /proc/cpuinfo | sed 1q&lt;span class="k"&gt;)&lt;/span&gt;
+    &lt;span class="nv"&gt;freq&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="k"&gt;$(&lt;/span&gt;&lt;span class="nb"&gt;echo&lt;/span&gt; &lt;span class="nv"&gt;$name&lt;/span&gt; | sed -r &lt;span class="s1"&gt;&amp;#39;s/.*@[ \t]+([0-9.]+)GHz$/\1/&amp;#39;&lt;/span&gt;&lt;span class="k"&gt;)&lt;/span&gt;
+    &lt;span class="k"&gt;case&lt;/span&gt; &lt;span class="nv"&gt;$name&lt;/span&gt; in
+        *i3-*&lt;span class="o"&gt;)&lt;/span&gt;
+            &lt;span class="nv"&gt;factor&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="nv"&gt;$FACTOR_I3&lt;/span&gt; ;;
+        *Duo*&lt;span class="o"&gt;)&lt;/span&gt;
+            &lt;span class="nv"&gt;factor&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="nv"&gt;$FACTOR_CD&lt;/span&gt; ;;
+        *&lt;span class="o"&gt;)&lt;/span&gt;
+            &lt;span class="nv"&gt;factor&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="nv"&gt;$FACTOR_C2&lt;/span&gt; ;;
+    &lt;span class="k"&gt;esac&lt;/span&gt;
+&lt;span class="k"&gt;    &lt;/span&gt;&lt;span class="nb"&gt;echo&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;( $freq * $factor )&amp;quot;&lt;/span&gt;
+&lt;span class="o"&gt;}&lt;/span&gt;
+
+sys_load&lt;span class="o"&gt;()&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt;
+    &lt;span class="nv"&gt;cores&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="k"&gt;$(&lt;/span&gt;cpu_core&lt;span class="k"&gt;)&lt;/span&gt;
+    &lt;span class="nv"&gt;loads&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="k"&gt;$(&lt;/span&gt;uptime | sed &lt;span class="s1"&gt;&amp;#39;s/.*load average://; s/,/ +/g&amp;#39;&lt;/span&gt;&lt;span class="k"&gt;)&lt;/span&gt;
+    &lt;span class="nb"&gt;echo&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;( ($loads) / (3 * $cores) )&amp;quot;&lt;/span&gt;
+&lt;span class="o"&gt;}&lt;/span&gt;
+
+&lt;span class="nb"&gt;echo&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;scale=4; $(cpu_freq) /  (10 * (0.1 + $(sys_load)))&amp;quot;&lt;/span&gt; | bc
+&lt;/pre&gt;&lt;/div&gt;
+&lt;/div&gt;&lt;/dd&gt;
+&lt;/dl&gt;
+&lt;p&gt;I placed some the ranking code into a separate file &amp;#8212;so as to easily
+run the functions from the shell&amp;#8212; and modified the distribution script&amp;nbsp;accordingly.&lt;/p&gt;
+&lt;dl class="docutils"&gt;
+&lt;dt&gt;functions&lt;/dt&gt;
+&lt;dd&gt;&lt;div class="first last"&gt;&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="c"&gt;#!/bin/bash&lt;/span&gt;
+
+rank_spec&lt;span class="o"&gt;()&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt;
+  &lt;span class="k"&gt;for &lt;/span&gt;src in &lt;span class="nv"&gt;$@&lt;/span&gt;; &lt;span class="k"&gt;do&lt;/span&gt;
+&lt;span class="k"&gt;    &lt;/span&gt;make -C &lt;span class="nv"&gt;$src&lt;/span&gt;/src &amp;amp;&amp;gt;/dev/null
+    &lt;span class="nb"&gt;pushd&lt;/span&gt; &lt;span class="nv"&gt;$src&lt;/span&gt; &amp;amp;&amp;gt;/dev/null
+    /usr/bin/time --format&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;%e&amp;#39;&lt;/span&gt; --output&lt;span class="o"&gt;=&lt;/span&gt;&amp;gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="nb"&gt;read &lt;/span&gt;t; &lt;span class="nb"&gt;echo&lt;/span&gt; &lt;span class="nv"&gt;$t&lt;/span&gt; &lt;span class="k"&gt;$(&lt;/span&gt;basename &lt;span class="nv"&gt;$src&lt;/span&gt;&lt;span class="k"&gt;)&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt; &lt;span class="se"&gt;\&lt;/span&gt;
+                  taskset -c 0 ./run.sh &amp;amp;&amp;gt;/dev/null
+    &lt;span class="nb"&gt;popd&lt;/span&gt; &amp;amp;&amp;gt;/dev/null
+  &lt;span class="k"&gt;done&lt;/span&gt; | sort -rgk 1 | cut -d&lt;span class="s1"&gt;&amp;#39; &amp;#39;&lt;/span&gt; -f 2
+&lt;span class="o"&gt;}&lt;/span&gt;
+
+list_hosts&lt;span class="o"&gt;()&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt;
+  wget -O - http://project.shearn89.com/available &lt;span class="se"&gt;\&lt;/span&gt;
+  | sed -rn &lt;span class="s1"&gt;&amp;#39;/Available/n; /label-success/ s/.*&amp;gt;([^&amp;lt;]+)&amp;lt;.*/\1/p&amp;#39;&lt;/span&gt;
+&lt;span class="o"&gt;}&lt;/span&gt;
+
+rank_hosts&lt;span class="o"&gt;()&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt;
+  list_hosts | &lt;span class="k"&gt;while &lt;/span&gt;&lt;span class="nb"&gt;read &lt;/span&gt;host; &lt;span class="k"&gt;do&lt;/span&gt;
+&lt;span class="k"&gt;    &lt;/span&gt;&lt;span class="nb"&gt;echo&lt;/span&gt; &lt;span class="k"&gt;$(&lt;/span&gt;ssh -nT &lt;span class="nv"&gt;$host&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;~/rankhost; exit&amp;#39;&lt;/span&gt;&lt;span class="k"&gt;)&lt;/span&gt; &lt;span class="nv"&gt;$host&lt;/span&gt;
+  &lt;span class="k"&gt;done&lt;/span&gt; | sed &lt;span class="s1"&gt;&amp;#39;/^[^1-9]/d&amp;#39;&lt;/span&gt; | sort -rgk 1 | cut -d&lt;span class="s1"&gt;&amp;#39; &amp;#39;&lt;/span&gt; -f 2
+&lt;span class="o"&gt;}&lt;/span&gt;
+
+cached_hosts&lt;span class="o"&gt;()&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt;
+  &lt;span class="nb"&gt;local &lt;/span&gt;&lt;span class="nv"&gt;h&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;hosts.cache
+  &lt;span class="o"&gt;[[&lt;/span&gt; -e &lt;span class="nv"&gt;$h&lt;/span&gt; &lt;span class="o"&gt;]]&lt;/span&gt; &lt;span class="o"&gt;&amp;amp;&amp;amp;&lt;/span&gt; cat &lt;span class="nv"&gt;$h&lt;/span&gt; &lt;span class="o"&gt;||&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt; rank_hosts | tee &lt;span class="nv"&gt;$h&lt;/span&gt;; &lt;span class="o"&gt;}&lt;/span&gt;
+&lt;span class="o"&gt;}&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+&lt;/div&gt;&lt;/dd&gt;
+&lt;dt&gt;distribute-new&lt;/dt&gt;
+&lt;dd&gt;&lt;div class="first last"&gt;&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="c"&gt;#!/bin/bash&lt;/span&gt;
+
+&lt;span class="nb"&gt;source&lt;/span&gt; &lt;span class="k"&gt;$(&lt;/span&gt;dirname &lt;span class="nv"&gt;$0&lt;/span&gt;&lt;span class="k"&gt;)&lt;/span&gt;/functions
+
+&lt;span class="nv"&gt;HOSTS&lt;/span&gt;&lt;span class="o"&gt;=(&lt;/span&gt;&lt;span class="k"&gt;$(&lt;/span&gt;cached_hosts&lt;span class="k"&gt;)&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt;
+&lt;span class="k"&gt;for &lt;/span&gt;src in &lt;span class="nv"&gt;$@&lt;/span&gt;; &lt;span class="k"&gt;do&lt;/span&gt;
+&lt;span class="k"&gt;  &lt;/span&gt;&lt;span class="nv"&gt;host&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="k"&gt;${&lt;/span&gt;&lt;span class="nv"&gt;HOSTS&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="k"&gt;$((&lt;/span&gt; i++ &lt;span class="k"&gt;))&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;&lt;span class="k"&gt;}&lt;/span&gt;
+  ssh -n &lt;span class="nv"&gt;$host&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;nohup ~/runjob $src 200-flags; exit&amp;quot;&lt;/span&gt; &amp;amp;
+&lt;span class="k"&gt;done&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+&lt;/div&gt;&lt;/dd&gt;
+&lt;/dl&gt;
+&lt;p&gt;To make sure any benchmark results were not affected by &lt;span class="caps"&gt;AFS&lt;/span&gt; or disk I/O
+latency I further modified the &lt;cite&gt;runjob&lt;/cite&gt; script to execute the benchmark
+out of a &lt;span class="caps"&gt;RAM&lt;/span&gt; filesystem, under &lt;cite&gt;/dev/shm/&lt;/cite&gt;.&lt;/p&gt;
+&lt;dl class="docutils"&gt;
+&lt;dt&gt;runjob-new&lt;/dt&gt;
+&lt;dd&gt;&lt;div class="first last"&gt;&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="c"&gt;#!/bin/bash&lt;/span&gt;
+
+&lt;span class="nv"&gt;dst&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;/dev/shm/mike
+&lt;span class="nv"&gt;results&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="nv"&gt;$dst&lt;/span&gt;/results
+mkdir -p &lt;span class="nv"&gt;$results&lt;/span&gt;
+
+&lt;span class="nv"&gt;src&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="nv"&gt;$1&lt;/span&gt;
+&lt;span class="nv"&gt;flags&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="nv"&gt;$2&lt;/span&gt;
+
+&lt;span class="nb"&gt;cd&lt;/span&gt; ~/msc/copt1
+cp -r &lt;span class="nv"&gt;$src&lt;/span&gt; &lt;span class="nv"&gt;$flags&lt;/span&gt; &lt;span class="nv"&gt;$dst&lt;/span&gt;
+&lt;span class="nv"&gt;src&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="k"&gt;$(&lt;/span&gt;basename &lt;span class="nv"&gt;$src&lt;/span&gt;&lt;span class="k"&gt;)&lt;/span&gt;
+&lt;span class="nv"&gt;flags&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="nv"&gt;$dst&lt;/span&gt;/&lt;span class="k"&gt;$(&lt;/span&gt;basename &lt;span class="nv"&gt;$flags&lt;/span&gt;&lt;span class="k"&gt;)&lt;/span&gt;
+&lt;span class="nv"&gt;log&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;results/info.$src.$(hostname)&amp;quot;&lt;/span&gt;
+&lt;span class="o"&gt;{&lt;/span&gt; date +&lt;span class="s1"&gt;&amp;#39;%F %T&amp;#39;&lt;/span&gt;;
+  cat /proc/cpuinfo;
+  free -m; &lt;span class="o"&gt;}&lt;/span&gt; &amp;gt; &lt;span class="nv"&gt;$log&lt;/span&gt;
+taskset -c 1 ./src/benchmark &lt;span class="nv"&gt;$dst&lt;/span&gt;/&lt;span class="nv"&gt;$src&lt;/span&gt; &lt;span class="nv"&gt;$results&lt;/span&gt; &lt;span class="nv"&gt;$flags&lt;/span&gt; 15
+&lt;span class="nb"&gt;echo&lt;/span&gt; &lt;span class="nv"&gt;$?&lt;/span&gt; &lt;span class="nv"&gt;$@&lt;/span&gt; &amp;gt;&amp;gt; &lt;span class="nv"&gt;$log&lt;/span&gt;
+cp -r &lt;span class="nv"&gt;$results&lt;/span&gt;/* results &lt;span class="o"&gt;&amp;amp;&amp;amp;&lt;/span&gt; rm -rf &lt;span class="nv"&gt;$dst&lt;/span&gt; &lt;span class="o"&gt;||&lt;/span&gt; &lt;span class="nb"&gt;echo&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;CLEAN UP FAILED&amp;quot;&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+&lt;/div&gt;&lt;/dd&gt;
+&lt;/dl&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+</summary><category term="scripts"></category><category term="benchmarks"></category></entry><entry><title>SSH Hops</title><link href="/ssh-hops.html" rel="alternate"></link><updated>2012-01-30T00:00:00+00:00</updated><author><name>michaelp</name></author><id>tag:,2012-01-30:ssh-hops.html</id><summary type="html">&lt;p&gt;Last night I got really fed up with the &lt;tt class="docutils literal"&gt;&lt;span class="caps"&gt;SSH&lt;/span&gt;&lt;/tt&gt; setup in Informatics at
+UoE, so I finally set out to automate it as much as I could and get rid
+of some ad-hoc scripts and aliases I had been using so far. In the
+process, I discovered some really cool &lt;tt class="docutils literal"&gt;&lt;span class="caps"&gt;SSH&lt;/span&gt;&lt;/tt&gt; features, which I
+describe later&amp;nbsp;on.&lt;/p&gt;
+&lt;p&gt;First of all, I had to set up Kerberos because key-based authentication
+is disabled. This was a simple matter of installing the &lt;tt class="docutils literal"&gt;&lt;span class="pre"&gt;krb5-user&lt;/span&gt;&lt;/tt&gt;
+debian package, adding &lt;span class="caps"&gt;INF&lt;/span&gt;.&lt;span class="caps"&gt;ED&lt;/span&gt;.&lt;span class="caps"&gt;AC&lt;/span&gt;.&lt;span class="caps"&gt;UK&lt;/span&gt; as the domain and
+running: &lt;a class="footnote-reference" href="#kerberos" id="id1"&gt;[1]&lt;/a&gt;&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;kinit sxxxxxxx@inf.ed.ac.uk
+&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;I could then login with Kerberos credentials by passing the &lt;tt class="docutils literal"&gt;&lt;span class="pre"&gt;-K&lt;/span&gt;&lt;/tt&gt; flag to
+&lt;tt class="docutils literal"&gt;&lt;span class="caps"&gt;SSH&lt;/span&gt;&lt;/tt&gt;.&lt;/p&gt;
+&lt;p&gt;What&amp;#8217;s equally useful however is bypassing the &lt;tt class="docutils literal"&gt;&lt;span class="caps"&gt;SSH&lt;/span&gt;&lt;/tt&gt; gateway. The best
+way to do this is by using the &lt;tt class="docutils literal"&gt;ProxyCommand&lt;/tt&gt; option of &lt;tt class="docutils literal"&gt;&lt;span class="caps"&gt;SSH&lt;/span&gt;&lt;/tt&gt;. I
+found a &lt;a class="reference external" href="http://www.jedi.be/blog/2008/11/07/chaining-ssh-tunnels-easy-ssh-hopping/"&gt;blog post&lt;/a&gt; explaining its usage, while a more elaborate
+configuration allowing for arbitrary hops is described in &lt;a class="reference external" href="http://www.reddit.com/r/linux/comments/fw4s0/"&gt;reddit&lt;/a&gt;.
+What follows is the corresponding snippet from my &lt;tt class="docutils literal"&gt;&lt;span class="pre"&gt;~/.ssh/config&lt;/span&gt;&lt;/tt&gt;
+file:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;Compression yes
+
+# SSH Gateway.
+Host inf
+User sxxxxxxx
+GSSAPIDelegateCredentials yes
+HostName student.ssh.inf.ed.ac.uk
+
+# Compute server.
+Host compute
+User sxxxxxxx
+Cipher blowfish
+GSSAPIDelegateCredentials yes
+HostName student.compute.inf.ed.ac.uk
+ProxyCommand ssh inf nc -w 240 student.compute 22
+
+# NESS HPC server.
+Host ness
+User sxxxxxxx
+Cipher blowfish
+HostName ness.epcc.ed.ac.uk
+ProxyCommand ssh inf nc -w 240 ness.epcc.ed.ac.uk 22
+
+# Gerrit/Git hosting service.
+Host gerrit
+Port 29418
+User sxxxxxxx
+Cipher blowfish
+HostName gerrit.not-a-service.inf.ed.ac.uk
+
+# SOCKS5 proxy for Firefox:
+# Invoke as `ssh -Nn tunnel` and add the following settings in user.js:
+# user_pref(&amp;quot;network.proxy.socks&amp;quot;, &amp;quot;localhost&amp;quot;);
+# user_pref(&amp;quot;network.proxy.socks_port&amp;quot;, 8080);
+# user_pref(&amp;quot;network.proxy.socks_remote_dns&amp;quot;, true);
+# user_pref(&amp;quot;network.proxy.type&amp;quot;, 1);
+Host tunnel
+User sxxxxxxx
+GSSAPIDelegateCredentials yes
+HostName student.ssh.inf.ed.ac.uk
+DynamicForward localhost:8080
+Cipher blowfish
+LogLevel QUIET
+RequestTTY no
+&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;This works seamlessly with &lt;tt class="docutils literal"&gt;sshfs&lt;/tt&gt;, and I can now mount &lt;em&gt;compute&lt;/em&gt;&amp;#8216;s
+ramdisk &amp;#8212;which I use for scratch space&amp;#8212; to circumvent my quota
+restrictions,&amp;nbsp;e.g.&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;sshfs compute:/dev/shm/mike ~/mnt
+&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;Initially &lt;tt class="docutils literal"&gt;sshfs&lt;/tt&gt; and &lt;tt class="docutils literal"&gt;scp&lt;/tt&gt; would not work correctly. After some
+digging around I discovered the culprit in my remote &lt;tt class="docutils literal"&gt;.bashrc&lt;/tt&gt; file.
+Because I did not have permissions to change my default shell to my
+local installation of &lt;tt class="docutils literal"&gt;zsh&lt;/tt&gt;, I had placed an &lt;tt class="docutils literal"&gt;exec zsh&lt;/tt&gt; command at
+the end of the &lt;tt class="docutils literal"&gt;.bashrc&lt;/tt&gt; file. This was problematic for
+non-interactive shells, like those invoked by &lt;tt class="docutils literal"&gt;scp&lt;/tt&gt; and &lt;tt class="docutils literal"&gt;sshfs&lt;/tt&gt;. The
+solution was to move the offending snippet to &lt;tt class="docutils literal"&gt;&lt;span class="pre"&gt;~/.bash_login&lt;/span&gt;&lt;/tt&gt;.&lt;/p&gt;
+&lt;p&gt;Besides the proxy setup, the above configuration adds handy shortcuts
+for the hosts. The &lt;tt class="docutils literal"&gt;GSSAPIDelegateCredentials&lt;/tt&gt; option is the
+equivalent of the &lt;tt class="docutils literal"&gt;&lt;span class="pre"&gt;-K&lt;/span&gt;&lt;/tt&gt; flag. For &lt;em&gt;ness&lt;/em&gt; and &lt;em&gt;gerrit&lt;/em&gt; I just use
+key-based authentication. The &lt;tt class="docutils literal"&gt;&lt;span class="pre"&gt;-w&lt;/span&gt; 240&lt;/tt&gt; is there to clean up the netcat
+process after 2 minutes of&amp;nbsp;inactivity.&lt;/p&gt;
+&lt;p&gt;The final entry is for tunneling my Firefox traffic through the &lt;span class="caps"&gt;SSH&lt;/span&gt;
+gateway. This is useful because the &lt;span class="caps"&gt;IP&lt;/span&gt; pool of the university&amp;#8217;s &lt;span class="caps"&gt;VPN&lt;/span&gt; does
+not provide access to all services. It also allows me to cleanly
+separate my university traffic. For a similar setup, just add a &lt;span class="caps"&gt;SOCKS5&lt;/span&gt;
+proxy from the Network Preferences, and set &lt;tt class="docutils literal"&gt;socks_remote_dns&lt;/tt&gt; to
+&lt;tt class="docutils literal"&gt;true&lt;/tt&gt; in &lt;tt class="docutils literal"&gt;about:config&lt;/tt&gt;. Alternatively, paste the commented lines
+in a file named &lt;tt class="docutils literal"&gt;user.js&lt;/tt&gt; inside your Firefox profile&amp;nbsp;directory.&lt;/p&gt;
+&lt;table class="docutils footnote" frame="void" id="kerberos" rules="none"&gt;
+&lt;colgroup&gt;&lt;col class="label" /&gt;&lt;col /&gt;&lt;/colgroup&gt;
+&lt;tbody valign="top"&gt;
+&lt;tr&gt;&lt;td class="label"&gt;&lt;a class="fn-backref" href="#id1"&gt;[1]&lt;/a&gt;&lt;/td&gt;&lt;td&gt;&lt;a class="reference external" href="http://www.inf.ed.ac.uk/systems/support/FAQ/#KB5"&gt;Informatics Support &lt;span class="caps"&gt;FAQ&lt;/span&gt;&lt;/a&gt;&lt;/td&gt;&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+</summary><category term="guide"></category><category term="ssh"></category></entry><entry><title>When disks fail</title><link href="/when-disks-fail.html" rel="alternate"></link><updated>2011-07-21T00:00:00+01:00</updated><author><name>michaelp</name></author><id>tag:,2011-07-21:when-disks-fail.html</id><summary type="html">&lt;p&gt;In the last year I&amp;#8217;ve had to recover data from two failing disks as well
+as one accidental formating. Overall I was successful, thanks to a
+couple of excellent free software power tools: &lt;a class="reference external" href="http://www.gnu.org/software/ddrescue/ddrescue.html"&gt;ddrescue&lt;/a&gt; &lt;a class="footnote-reference" href="#confused" id="id1"&gt;[1]&lt;/a&gt;
+and &lt;a class="reference external" href="http://www.cgsecurity.org/wiki/TestDisk"&gt;testdisk&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;Because the process is somewhat involved, I decided to write this short
+guide as a quick reference, both for myself and anyone who has to deal
+with such&amp;nbsp;&amp;#8220;disasters&amp;#8221;.&lt;/p&gt;
+&lt;div class="section" id="step-1-identifying-a-failing-disk"&gt;
+&lt;h2&gt;Step 1: Identifying a failing&amp;nbsp;disk&lt;/h2&gt;
+&lt;p&gt;While identifying a &lt;em&gt;failed&lt;/em&gt; disk is usually straightforward &amp;#8212;you can&amp;#8217;t
+use it anymore&amp;#8212; identifying one that is &lt;em&gt;failing&lt;/em&gt; is not as&amp;nbsp;simple.&lt;/p&gt;
+&lt;p&gt;First of, make sure you have &lt;a class="reference internal" href="#smart-monitoring"&gt;&lt;span class="caps"&gt;SMART&lt;/span&gt; monitoring&lt;/a&gt; enabled, and that you
+regularly check the overall health status of the disk. Other things to
+look out for are unusual mechanical noises (e.g.  clicking sounds) and
+lack of system responsiveness without a high &lt;span class="caps"&gt;CPU&lt;/span&gt; load, a common
+side-effect of disk read errors &lt;a class="footnote-reference" href="#monitor" id="id2"&gt;[2]&lt;/a&gt;.&lt;/p&gt;
+&lt;/div&gt;
+&lt;div class="section" id="step-2-recovering-raw-data"&gt;
+&lt;h2&gt;Step 2: Recovering raw&amp;nbsp;data&lt;/h2&gt;
+&lt;p&gt;Using &lt;a class="reference external" href="http://www.gnu.org/software/ddrescue/ddrescue.html"&gt;ddrescue&lt;/a&gt; is a bit confusing with only its manpage as reference.
+Fortunately, it comes with a comprehensive &lt;a class="reference external" href="http://www.gnu.org/software/ddrescue/manual/ddrescue_manual.html"&gt;manual&lt;/a&gt; which you &lt;em&gt;absolutely
+must&lt;/em&gt; read before attempting a rescue. I&amp;#8217;m providing a brief overview of
+its usage, but be aware that this is no replacement for the full manual,
+and since I&amp;#8217;m no expert on data recovery this information may well be
+inaccurate and&amp;nbsp;incomplete.&lt;/p&gt;
+&lt;p&gt;The overall approach of ddrescue is to read the good blocks of the
+failing device first, before trying hard to recover problematic sectors.
+This is based on the observation that a failing drive develops more and
+more errors as time passes, which is accurate most of the&amp;nbsp;time.&lt;/p&gt;
+&lt;p&gt;The proposed usage on disk drives consists of two separate runs. The
+first tries to be as fast as possible, while the second tries to rescue
+as many sectors as possible, by splitting unreadable blocks into smaller
+ones, until the hardware limit is reached. Thus you end up running
+something like the&amp;nbsp;following:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;ddrescue --no-split /dev/sda sda.img sda.log
+&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;followed&amp;nbsp;by&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;ddrescue --direct /dev/sda sda.img sda.log
+&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;The log file will keep track of unreadable sectors and instruct the
+second run to only work on those instead of re-reading the disk. It can
+also be helpful if for some reason you have to interrupt the rescue, and
+continue at a later&amp;nbsp;point.&lt;/p&gt;
+&lt;p&gt;It&amp;#8217;s good practice to make an image of the failing disk instead of
+rescuing directly to a different device, and even better to work on
+copies of this image when trying to repair filesystems or recover files.
+The &lt;tt class="docutils literal"&gt;&lt;span class="pre"&gt;--sparse&lt;/span&gt;&lt;/tt&gt; option of &lt;a class="reference external" href="http://www.gnu.org/software/ddrescue/ddrescue.html"&gt;ddrescue&lt;/a&gt; can save some space in this case,
+provided your filesystem supports sparse files and the disk has large
+unwritten areas. After recovery is complete, you can use ddrescue or
+some other program (e.g. &lt;tt class="docutils literal"&gt;dd&lt;/tt&gt;) to write the image to a new&amp;nbsp;device.&lt;/p&gt;
+&lt;p&gt;However, space limitations may require rescuing directly to another
+device, in which case you will have to provide the &lt;tt class="docutils literal"&gt;&lt;span class="pre"&gt;--force&lt;/span&gt;&lt;/tt&gt; flag to&amp;nbsp;ddrescue.&lt;/p&gt;
+&lt;p&gt;What follows is sample output from &lt;a class="reference external" href="http://www.gnu.org/software/ddrescue/ddrescue.html"&gt;ddrescue&lt;/a&gt; when recovering the 3rd
+partition of a failing drive. At this point, errors are starting to
+appear after having read 100 GBs of&amp;nbsp;data.&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;$ ddrescue --no-split /dev/sdb3 sdb3.img sdb3.log
+
+Press Ctrl-C to interrupt
+Initial status (read from logfile)
+rescued:         0 B,  errsize:       0 B,  errors:       0
+Current status
+rescued:   108539 MB,  errsize:  21117 kB,  current rate:    14224 B/s
+   ipos:   108560 MB,   errors:     331,    average rate:   10534 kB/s
+   opos:   108560 MB,     time from last successful read:       0 s
+&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;And here is the second pass which was left overnight, for roughly 10
+hours. You can see how the error size has been reduced to a mere 370 KBs
+from the initial 21 MBs. Shortly after, I decided to call it quits and
+interrupt the recovery. This partition did not hold very important data
+anyway, it was mountable (i.e. no obvious filesystem damage) and it did
+not seem like I would be getting anything more out of that&amp;nbsp;disk.&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;$ ddrescue --direct --max-retries 2 /dev/sdb3 sdb3.img sdb3.log
+
+Press Ctrl-C to interrupt
+Initial status (read from logfile)
+rescued:   159208 MB,  errsize:  10821 kB,  errors:     357
+Current status
+rescued:   159218 MB,  errsize:    370 kB,  current rate:        0 B/s
+   ipos:   108542 MB,   errors:     367,    average rate:      291 B/s
+   opos:   108542 MB,     time from last successful read:     1.5 h
+Retrying bad sectors... Retry 2
+&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;Refer to the ddrescue &lt;a class="reference external" href="http://www.gnu.org/software/ddrescue/manual/ddrescue_manual.html"&gt;manual&lt;/a&gt; for advice on how to detect corrupt files,
+and how to wipe the disk clean before sending it for&amp;nbsp;replacement.&lt;/p&gt;
+&lt;p&gt;To test if a partition is mountable you can use something like the&amp;nbsp;following:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;mount -o ro,loop sdb3.img /mnt
+&lt;/pre&gt;&lt;/div&gt;
+&lt;div class="attention"&gt;
+&lt;p class="first admonition-title"&gt;Attention!&lt;/p&gt;
+&lt;p&gt;Note the read-only option which ensures nothing is written to the
+possibly corrupt filesystem &amp;#8212; like access times for instance. If you
+are rescuing a whole disk image and want to check out a specific
+partition, you can use &lt;a class="reference external" href="http://www.cgsecurity.org/wiki/TestDisk"&gt;testdisk&lt;/a&gt;, or specify a byte offset when
+mounting. For example, the first partition usually starts after 512
+bytes &lt;a class="footnote-reference" href="#mbr" id="id3"&gt;[3]&lt;/a&gt;.&lt;/p&gt;
+&lt;div class="last"&gt;&lt;div class="highlight"&gt;&lt;pre&gt;mount -o ro,loop,offset&lt;span class="o"&gt;=&lt;/span&gt;512 sdb.img /mnt
+&lt;/pre&gt;&lt;/div&gt;
+&lt;/div&gt;&lt;/div&gt;
+&lt;/div&gt;
+&lt;div class="section" id="step-3-recovering-specific-files"&gt;
+&lt;h2&gt;Step 3: Recovering specific&amp;nbsp;files&lt;/h2&gt;
+&lt;p&gt;Recovering raw data is only part of the solution. What happens when our
+data is there, but the information to retrieve them is lost? In our
+current scenario this may occur because some of the unrecovered sectors
+included filesystem data. Another common scenario is when we delete
+some files we shouldn&amp;#8217;t &amp;#8212; or in my case, format the wrong drive. The
+careful reader will also notice that the two scenarios overlap: it&amp;#8217;s
+entirely possible, and probable, that we will come across previously
+deleted files in our effort to recover damaged sections of the
+filesystem. So, don&amp;#8217;t be surprised if deleted files start to crop&amp;nbsp;up.&lt;/p&gt;
+&lt;p&gt;Now that we recovered as much raw data as possible, it&amp;#8217;s time for damage
+control. If you are lucky you managed to recover all of the data, or the
+unreadable sectors did not corrupt the filesystem and the partition
+table. If not, don&amp;#8217;t despair just yet, it&amp;#8217;s time to give &lt;a class="reference external" href="http://www.cgsecurity.org/wiki/TestDisk"&gt;testdisk&lt;/a&gt; a
+try. (Another likely scenario is that you accidentally formatted a disk
+partition with valuable&amp;nbsp;data)&lt;/p&gt;
+&lt;p&gt;&lt;a class="reference external" href="http://www.cgsecurity.org/wiki/TestDisk"&gt;testdisk&lt;/a&gt; can work on disk images as well as actual devices. It has
+support for the most popular partition table formats, filesystems and
+file types. It can reconstruct partition and filesystem information. It
+can also be used to interactively copy recovered files or whole
+directories. Finally, it can write the reconstructed information back to
+the disk or&amp;nbsp;image.&lt;/p&gt;
+&lt;p&gt;Its interface is interactive &amp;#8212; albeit text based. Various tutorials and
+walkthroughs are available at the project&amp;#8217;s&amp;nbsp;wiki.&lt;/p&gt;
+&lt;p&gt;I successfully used &lt;a class="reference external" href="http://www.cgsecurity.org/wiki/TestDisk"&gt;testdisk&lt;/a&gt; to recover most of the data of a &lt;span class="caps"&gt;FAT32&lt;/span&gt;
+partition that I accidentally reformatted. Not all of the data was
+recoverable though, some were overwritten before I realised my&amp;nbsp;mistake.&lt;/p&gt;
+&lt;p&gt;I was also impressed by the prompt response to a problem I encountered.
+Greek filenames did not appear correctly, but a couple of email
+exchanges later and a fix was readily available by testdisk&amp;#8217;s&amp;nbsp;author.&lt;/p&gt;
+&lt;/div&gt;
+&lt;div class="section" id="caveats"&gt;
+&lt;h2&gt;Caveats&lt;/h2&gt;
+&lt;div class="section" id="linux-device-naming"&gt;
+&lt;h3&gt;Linux device&amp;nbsp;naming&lt;/h3&gt;
+&lt;p&gt;Be aware that the naming of devices under &lt;tt class="docutils literal"&gt;/dev&lt;/tt&gt; is not particularly
+stable under Linux with recent udev versions, even across&amp;nbsp;reboots.&lt;/p&gt;
+&lt;p&gt;Make sure you use UUIDs in &lt;tt class="docutils literal"&gt;/etc/fstab&lt;/tt&gt; before you start plugging in
+different disks (to avoid trying to mount the damaged disk), and always
+double check that you are reading and writing over the correct devices.
+You can discover UUIDs by looking at the symlinks in
+&lt;tt class="docutils literal"&gt;&lt;span class="pre"&gt;/dev/disk/by-uuid&lt;/span&gt;&lt;/tt&gt; or by studying the output of &lt;tt class="docutils literal"&gt;blkid&lt;/tt&gt;.&lt;/p&gt;
+&lt;p&gt;Another approach is to run &lt;tt class="docutils literal"&gt;smartctl &lt;span class="pre"&gt;-i&lt;/span&gt; /dev/xxx&lt;/tt&gt; to list the
+manufacturer and model name of a device, to make sure it is the correct
+one, or use one of the symlinks in &lt;tt class="docutils literal"&gt;&lt;span class="pre"&gt;/dev/disk/by-id&lt;/span&gt;&lt;/tt&gt;.&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div class="section" id="appendix"&gt;
+&lt;h2&gt;Appendix&lt;/h2&gt;
+&lt;div class="section" id="smart"&gt;
+&lt;span id="smart-monitoring"&gt;&lt;/span&gt;&lt;h3&gt;&lt;span class="caps"&gt;SMART&lt;/span&gt;&lt;/h3&gt;
+&lt;p&gt;&lt;a class="reference external" href="http://en.wikipedia.org/wiki/S.M.A.R.T."&gt;&lt;span class="caps"&gt;SMART&lt;/span&gt;&lt;/a&gt;, short for Self-Monitoring, Analysis and Reporting Technology, is
+a standard to monitor hard disk drives in the hope of predicting
+imminent hardware failures. Since not all of the information reported is
+standardized and since certain values have different meanings across
+manufacturers, it is not always reliable as a health assessment tool.
+Nevertheless, some information is better than no information, and a
+device that keeps logging &lt;span class="caps"&gt;SMART&lt;/span&gt; errors is more likely to fail in the
+near future than one that appears&amp;nbsp;healthy.&lt;/p&gt;
+&lt;p&gt;On &lt;span class="caps"&gt;GNU&lt;/span&gt;/Linux the &lt;a class="reference external" href="http://smartmontools.sourceforge.net"&gt;smartmontools&lt;/a&gt; suite can be used to query &lt;span class="caps"&gt;SMART&lt;/span&gt;
+information and perform &lt;span class="caps"&gt;SMART&lt;/span&gt; self tests. In addition, the &lt;a class="reference external" href="http://www.guzu.net/linux/hddtemp.php"&gt;hddtemp&lt;/a&gt;
+utility can be used to query temperature information (which itself
+relies on &lt;span class="caps"&gt;SMART&lt;/span&gt;&amp;nbsp;data).&lt;/p&gt;
+&lt;p&gt;&lt;a class="reference external" href="http://crystalmark.info/software/CrystalDiskInfo/index-e.html"&gt;CrystalDiskInfo&lt;/a&gt; is an excellent &lt;span class="caps"&gt;SMART&lt;/span&gt; monitoring tool for windows
+systems. I always keep a copy of the portable version on a &lt;span class="caps"&gt;USB&lt;/span&gt; key
+myself. Another promising monitoring tool for windows is &lt;a class="reference external" href="http://openhardwaremonitor.org"&gt;Open Hardware
+Monitor&lt;/a&gt;, which provides information on modern &lt;span class="caps"&gt;CPU&lt;/span&gt; and &lt;span class="caps"&gt;GPU&lt;/span&gt; sensors as&amp;nbsp;well.&lt;/p&gt;
+&lt;table class="docutils footnote" frame="void" id="confused" rules="none"&gt;
+&lt;colgroup&gt;&lt;col class="label" /&gt;&lt;col /&gt;&lt;/colgroup&gt;
+&lt;tbody valign="top"&gt;
+&lt;tr&gt;&lt;td class="label"&gt;&lt;a class="fn-backref" href="#id1"&gt;[1]&lt;/a&gt;&lt;/td&gt;&lt;td&gt;Not to be confused with a different but similarly named tool, &lt;a class="reference external" href="http://www.garloff.de/kurt/linux/ddrescue"&gt;dd_rescue&lt;/a&gt;.&lt;/td&gt;&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;table class="docutils footnote" frame="void" id="monitor" rules="none"&gt;
+&lt;colgroup&gt;&lt;col class="label" /&gt;&lt;col /&gt;&lt;/colgroup&gt;
+&lt;tbody valign="top"&gt;
+&lt;tr&gt;&lt;td class="label"&gt;&lt;a class="fn-backref" href="#id2"&gt;[2]&lt;/a&gt;&lt;/td&gt;&lt;td&gt;Some useful system monitoring tools for &lt;span class="caps"&gt;GNU&lt;/span&gt;/Linux include &lt;a class="reference external" href="http://htop.sourceforge.net"&gt;htop&lt;/a&gt;, &lt;a class="reference external" href="http://guichaz.free.fr/iotop"&gt;iotop&lt;/a&gt; and &lt;a class="reference external" href="http://pagesperso-orange.fr/sebastien.godard"&gt;sysstat&lt;/a&gt;.&lt;/td&gt;&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;table class="docutils footnote" frame="void" id="mbr" rules="none"&gt;
+&lt;colgroup&gt;&lt;col class="label" /&gt;&lt;col /&gt;&lt;/colgroup&gt;
+&lt;tbody valign="top"&gt;
+&lt;tr&gt;&lt;td class="label"&gt;&lt;a class="fn-backref" href="#id3"&gt;[3]&lt;/a&gt;&lt;/td&gt;&lt;td&gt;These consist of the &lt;em&gt;Master Boot Record&lt;/em&gt; which contains the device&amp;#8217;s partition table.&lt;/td&gt;&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+</summary><category term="guide"></category></entry></feed>

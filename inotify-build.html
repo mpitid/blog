@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+        <meta charset="utf-8" />
+        <title>inotify; build</title>
+        <link rel="stylesheet" href="/theme/css/main.css" />
+        <link href="/feeds/all.atom.xml" type="application/atom+xml" rel="alternate" title="_ Atom Feed" />
+
+        <!--[if IE]>
+            <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+        <![endif]-->
+</head>
+
+<body id="index" class="home">
+        <header id="banner" class="body">
+                <h1><a href="/">_ </a></h1>
+                <nav><ul>
+    
+                        <li><a href="/pages/about.html">About</a></li>
+    
+                        <li><a href="/pages/projects.html">Projects</a></li>
+                    <li class="active"><a href="/category/misc.html">misc</a></li>
+                </ul>
+                </nav>
+        </header><!-- /#banner -->
+<section id="content" class="body">
+  <article>
+    <header>
+      <h1 class="entry-title">
+        <a href="/inotify-build.html" rel="bookmark"
+           title="Permalink to inotify; build">inotify;&nbsp;build</a></h1>
+    </header>
+
+    <div class="entry-content">
+<footer class="post-info">
+        <span>Thu 11 October 2012</span>
+<span>| tags: <a href="/tag/scripts.html">scripts</a><a href="/tag/utilities.html">utilities</a></span>
+</footer><!-- /.post-info -->      <p>A few months ago, when I started using Scala more seriously, I
+familiarised myself with <a class="reference external" href="http://www.scala-sbt.org">sbt</a> after seeing it touted as the recommended
+build tool here and there. Despite some grievances with this
+not-so-simple build tool, I did find one of its features rather handy:
+automatically executing compile or test actions whenever a file changed
+(quite similar to hakyll&#8217;s preview&nbsp;feature).</p>
+<p>In fact, I got used to this feature so much that I decided I needed it
+for other projects, like automatically running LaTeX for me, or updating
+<a class="reference external" href="http://ikiwiki.info">ikiwiki</a>.</p>
+<p>It turns out this was fairly simple to implement with <a class="reference external" href="https://github.com/rvoicilas/inotify-tools/wiki">inotify-tools</a>
+doing all the heavy lifting, with regard to monitoring files for changes
+and generating appropriate events. All that remained was wrapping it up
+in a suitable script I called <tt class="docutils literal">monitor</tt>, to only act on files that
+match a particular regular&nbsp;expression:</p>
+<div class="highlight"><pre>TARGET=&quot;$1&quot;
+PATTERN=&quot;$2&quot;
+COMMAND=(&quot;${@:3}&quot;)
+
+[[ $# -lt 3 ]] &amp;&amp; {
+ echo &quot;usage: $0 &lt;watched-dir&gt; &lt;file-pattern&gt; &lt;command&gt;&quot;
+ exit 1 }
+
+EVENTS=(modify delete)
+
+inotifywait -r -m -e ${(j.,.)EVENTS} --format &quot;%w%f&quot; $TARGET \
+| egrep --line-buffered &quot;$PATTERN&quot; | while read file; do
+  echo &quot;event: $file&quot;
+  $COMMAND
+done
+</pre></div>
+<p>I could then run the following command to continuously build my&nbsp;ikiwiki:</p>
+<div class="highlight"><pre>monitor path/to/wiki <span class="s1">&#39;\.mkdn$|\.mdwn$&#39;</span> ikiwiki --setup ~/wiki.setup
+</pre></div>
+<p>or generate my LaTeX reports (given a suitable&nbsp;Makefile):</p>
+<div class="highlight"><pre>monitor path/to/tex <span class="s1">&#39;\.tex$|\.bib$&#39;</span> make
+</pre></div>
+<p>The script is also available on <a class="reference external" href="https://github.com/mpitid/scripts/blob/master/monitor">github</a> as part of a collection of
+scripts I have found a use for from time to&nbsp;time.</p>
+
+    </div><!-- /.entry-content -->
+
+  </article>
+</section>
+        <section id="extras" class="body">
+                <div class="social">
+                        <h2>social</h2>
+                        <ul>
+                            <li><a href="/feeds/all.atom.xml" type="application/atom+xml" rel="alternate">atom feed</a></li>
+
+                        </ul>
+                </div><!-- /.social -->
+        </section><!-- /#extras -->
+
+        <footer id="contentinfo" class="body">
+                <p>Powered by <a href="http://getpelican.com/">Pelican</a>. Theme <a href="https://github.com/blueicefield/pelican-blueidea/">blueidea</a>, inspired by the default theme.</p>
+        </footer><!-- /#contentinfo -->
+
+</body>
+</html>

@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+        <meta charset="utf-8" />
+        <title>_ - ssh</title>
+        <link rel="stylesheet" href="/theme/css/main.css" />
+        <link href="/feeds/all.atom.xml" type="application/atom+xml" rel="alternate" title="_ Atom Feed" />
+
+        <!--[if IE]>
+            <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+        <![endif]-->
+</head>
+
+<body id="index" class="home">
+        <header id="banner" class="body">
+                <h1><a href="/">_ </a></h1>
+                <nav><ul>
+    
+                        <li><a href="/pages/about.html">About</a></li>
+    
+                        <li><a href="/pages/projects.html">Projects</a></li>
+                    <li><a href="/category/misc.html">misc</a></li>
+                </ul>
+                </nav>
+        </header><!-- /#banner -->
+
+            <aside id="featured" class="body">
+                <article>
+                    <h1 class="entry-title"><a href="/ssh-hops.html"><span class="caps">SSH</span>&nbsp;Hops</a></h1>
+<footer class="post-info">
+        <span>Mon 30 January 2012</span>
+<span>| tags: <a href="/tag/guide.html">guide</a><a href="/tag/ssh.html">ssh</a></span>
+</footer><!-- /.post-info --><p>Last night I got really fed up with the <tt class="docutils literal"><span class="caps">SSH</span></tt> setup in Informatics at
+UoE, so I finally set out to automate it as much as I could and get rid
+of some ad-hoc scripts and aliases I had been using so far. In the
+process, I discovered some really cool <tt class="docutils literal"><span class="caps">SSH</span></tt> features, which I
+describe later&nbsp;on.</p>
+<p>First of all, I had to set up Kerberos because key-based authentication
+is disabled. This was a simple matter of installing the <tt class="docutils literal"><span class="pre">krb5-user</span></tt>
+debian package, adding <span class="caps">INF</span>.<span class="caps">ED</span>.<span class="caps">AC</span>.<span class="caps">UK</span> as the domain and
+running: <a class="footnote-reference" href="#kerberos" id="id1">[1]</a></p>
+<div class="highlight"><pre>kinit sxxxxxxx@inf.ed.ac.uk
+</pre></div>
+<p>I could then login with Kerberos credentials by passing the <tt class="docutils literal"><span class="pre">-K</span></tt> flag to
+<tt class="docutils literal"><span class="caps">SSH</span></tt>.</p>
+<p>What&#8217;s equally useful however is bypassing the <tt class="docutils literal"><span class="caps">SSH</span></tt> gateway. The best
+way to do this is by using the <tt class="docutils literal">ProxyCommand</tt> option of <tt class="docutils literal"><span class="caps">SSH</span></tt>. I
+found a <a class="reference external" href="http://www.jedi.be/blog/2008/11/07/chaining-ssh-tunnels-easy-ssh-hopping/">blog post</a> explaining its usage, while a more elaborate
+configuration allowing for arbitrary hops is described in <a class="reference external" href="http://www.reddit.com/r/linux/comments/fw4s0/">reddit</a>.
+What follows is the corresponding snippet from my <tt class="docutils literal"><span class="pre">~/.ssh/config</span></tt>
+file:</p>
+<div class="highlight"><pre>Compression yes
+
+# SSH Gateway.
+Host inf
+User sxxxxxxx
+GSSAPIDelegateCredentials yes
+HostName student.ssh.inf.ed.ac.uk
+
+# Compute server.
+Host compute
+User sxxxxxxx
+Cipher blowfish
+GSSAPIDelegateCredentials yes
+HostName student.compute.inf.ed.ac.uk
+ProxyCommand ssh inf nc -w 240 student.compute 22
+
+# NESS HPC server.
+Host ness
+User sxxxxxxx
+Cipher blowfish
+HostName ness.epcc.ed.ac.uk
+ProxyCommand ssh inf nc -w 240 ness.epcc.ed.ac.uk 22
+
+# Gerrit/Git hosting service.
+Host gerrit
+Port 29418
+User sxxxxxxx
+Cipher blowfish
+HostName gerrit.not-a-service.inf.ed.ac.uk
+
+# SOCKS5 proxy for Firefox:
+# Invoke as `ssh -Nn tunnel` and add the following settings in user.js:
+# user_pref(&quot;network.proxy.socks&quot;, &quot;localhost&quot;);
+# user_pref(&quot;network.proxy.socks_port&quot;, 8080);
+# user_pref(&quot;network.proxy.socks_remote_dns&quot;, true);
+# user_pref(&quot;network.proxy.type&quot;, 1);
+Host tunnel
+User sxxxxxxx
+GSSAPIDelegateCredentials yes
+HostName student.ssh.inf.ed.ac.uk
+DynamicForward localhost:8080
+Cipher blowfish
+LogLevel QUIET
+RequestTTY no
+</pre></div>
+<p>This works seamlessly with <tt class="docutils literal">sshfs</tt>, and I can now mount <em>compute</em>&#8216;s
+ramdisk &#8212;which I use for scratch space&#8212; to circumvent my quota
+restrictions,&nbsp;e.g.</p>
+<div class="highlight"><pre>sshfs compute:/dev/shm/mike ~/mnt
+</pre></div>
+<p>Initially <tt class="docutils literal">sshfs</tt> and <tt class="docutils literal">scp</tt> would not work correctly. After some
+digging around I discovered the culprit in my remote <tt class="docutils literal">.bashrc</tt> file.
+Because I did not have permissions to change my default shell to my
+local installation of <tt class="docutils literal">zsh</tt>, I had placed an <tt class="docutils literal">exec zsh</tt> command at
+the end of the <tt class="docutils literal">.bashrc</tt> file. This was problematic for
+non-interactive shells, like those invoked by <tt class="docutils literal">scp</tt> and <tt class="docutils literal">sshfs</tt>. The
+solution was to move the offending snippet to <tt class="docutils literal"><span class="pre">~/.bash_login</span></tt>.</p>
+<p>Besides the proxy setup, the above configuration adds handy shortcuts
+for the hosts. The <tt class="docutils literal">GSSAPIDelegateCredentials</tt> option is the
+equivalent of the <tt class="docutils literal"><span class="pre">-K</span></tt> flag. For <em>ness</em> and <em>gerrit</em> I just use
+key-based authentication. The <tt class="docutils literal"><span class="pre">-w</span> 240</tt> is there to clean up the netcat
+process after 2 minutes of&nbsp;inactivity.</p>
+<p>The final entry is for tunneling my Firefox traffic through the <span class="caps">SSH</span>
+gateway. This is useful because the <span class="caps">IP</span> pool of the university&#8217;s <span class="caps">VPN</span> does
+not provide access to all services. It also allows me to cleanly
+separate my university traffic. For a similar setup, just add a <span class="caps">SOCKS5</span>
+proxy from the Network Preferences, and set <tt class="docutils literal">socks_remote_dns</tt> to
+<tt class="docutils literal">true</tt> in <tt class="docutils literal">about:config</tt>. Alternatively, paste the commented lines
+in a file named <tt class="docutils literal">user.js</tt> inside your Firefox profile&nbsp;directory.</p>
+<table class="docutils footnote" frame="void" id="kerberos" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id1">[1]</a></td><td><a class="reference external" href="http://www.inf.ed.ac.uk/systems/support/FAQ/#KB5">Informatics Support <span class="caps">FAQ</span></a></td></tr>
+</tbody>
+</table>
+                </article>
+<p class="paginator">
+    Page 1 / 1
+</p>
+            </aside><!-- /#featured -->
+            </ol><!-- /#posts-list -->
+            </section><!-- /#content -->
+        <section id="extras" class="body">
+                <div class="social">
+                        <h2>social</h2>
+                        <ul>
+                            <li><a href="/feeds/all.atom.xml" type="application/atom+xml" rel="alternate">atom feed</a></li>
+
+                        </ul>
+                </div><!-- /.social -->
+        </section><!-- /#extras -->
+
+        <footer id="contentinfo" class="body">
+                <p>Powered by <a href="http://getpelican.com/">Pelican</a>. Theme <a href="https://github.com/blueicefield/pelican-blueidea/">blueidea</a>, inspired by the default theme.</p>
+        </footer><!-- /#contentinfo -->
+
+</body>
+</html>

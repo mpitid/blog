@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+        <meta charset="utf-8" />
+        <title>_ - python</title>
+        <link rel="stylesheet" href="/theme/css/main.css" />
+        <link href="/feeds/all.atom.xml" type="application/atom+xml" rel="alternate" title="_ Atom Feed" />
+
+        <!--[if IE]>
+            <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+        <![endif]-->
+</head>
+
+<body id="index" class="home">
+        <header id="banner" class="body">
+                <h1><a href="/">_ </a></h1>
+                <nav><ul>
+    
+                        <li><a href="/pages/about.html">About</a></li>
+    
+                        <li><a href="/pages/projects.html">Projects</a></li>
+                    <li><a href="/category/misc.html">misc</a></li>
+                </ul>
+                </nav>
+        </header><!-- /#banner -->
+
+            <aside id="featured" class="body">
+                <article>
+                    <h1 class="entry-title"><a href="/meta-python.html">meta-python</a></h1>
+<footer class="post-info">
+        <span>Thu 01 November 2012</span>
+<span>| tags: <a href="/tag/python.html">python</a><a href="/tag/meta-programming.html">meta-programming</a></span>
+</footer><!-- /.post-info --><p>One of the great things about Python is the meta-programming facilities.
+I quite enjoy abusing language features that I like, and this post
+describes two such examples I&#8217;ve grown fond of. While their place in
+production code might be questionable, I have found them quite handy in
+various quick&nbsp;scripts.</p>
+<p>I will present two examples, both of which rely on decorators
+<a class="footnote-reference" href="#decorators" id="id1">[1]</a>. The first example provides a way to automatically
+<a class="reference external" href="https://en.wikipedia.org/wiki/Memoization">memoize</a> the results of a function. Assuming the function has no
+side-effects, calling it with the same argument list should produce the
+same result, thus saving computation time at the expense of space. Such
+a decorator can be defined as&nbsp;follows:</p>
+<div class="highlight"><pre><span class="k">class</span> <span class="nc">Memoized</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">function</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">function</span> <span class="o">=</span> <span class="n">function</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mem</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">def</span> <span class="nf">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="n">key</span> <span class="o">=</span> <span class="n">args</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">kwargs</span><span class="o">.</span><span class="n">iteritems</span><span class="p">())</span>
+        <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">mem</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">mem</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">function</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mem</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+        <span class="k">return</span> <span class="n">value</span>
+</pre></div>
+<p>Note that the above code never deletes stored values, which can lead to
+long running programs running out of&nbsp;memory.</p>
+<p>Now it is very simple to use memoization without modifying a function,
+by merely adding the decorator before its definition (even if the source
+code is not available, any function object can be wrapped in this class
+at runtime). The following example converts a function which counts the
+number of times a word appears in a document to the memoized&nbsp;equivalent:</p>
+<div class="highlight"><pre><span class="nd">@Memoized</span>
+<span class="k">def</span> <span class="nf">occurences</span><span class="p">(</span><span class="n">word</span><span class="p">,</span> <span class="n">words</span><span class="p">):</span>
+    <span class="k">return</span> <span class="nb">sum</span><span class="p">(</span><span class="n">w</span> <span class="o">==</span> <span class="n">word</span> <span class="k">for</span> <span class="n">w</span> <span class="ow">in</span> <span class="n">words</span><span class="p">)</span>
+</pre></div>
+<p>The second example stems from my fascination with the Python <tt class="docutils literal">yield</tt>
+statement. Quite often I find myself writing small functions which need
+to return a materialised sequence (e.g. a list or dictionary), but not
+small enough to nicely fit into say, a list comprehension. To avoid the
+tedious boilerplate of initializing the sequence, appending elements to
+it, and then returning the result, I&#8217;ve resorted to the following
+scheme: I use a composition decorator, which takes the type of sequence
+as argument, and applies it to the result of a generator&nbsp;function.</p>
+<p>The end result, slightly generalised, is the&nbsp;following:</p>
+<div class="highlight"><pre><span class="k">def</span> <span class="nf">compose</span><span class="p">(</span><span class="n">f1</span><span class="p">,</span> <span class="n">f2</span><span class="p">):</span>
+    <span class="k">assert</span> <span class="nb">callable</span><span class="p">(</span><span class="n">f1</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">callable</span><span class="p">(</span><span class="n">f2</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">composition</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">f1</span><span class="p">(</span><span class="n">f2</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">composition</span>
+
+<span class="k">class</span> <span class="nc">Compose</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">functions</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">functions</span> <span class="o">=</span> <span class="n">functions</span>
+    <span class="k">def</span> <span class="nf">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">function</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">reduce</span><span class="p">(</span><span class="n">compose</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">functions</span> <span class="o">+</span> <span class="p">(</span><span class="n">function</span><span class="p">,))</span>
+</pre></div>
+<p>And here is how it could be used on a higher order function which
+applies arbitrary user functions to dictionary keys and/or&nbsp;values:</p>
+<div class="highlight"><pre><span class="k">def</span> <span class="nf">identity</span><span class="p">(</span><span class="n">x</span><span class="p">):</span> <span class="k">return</span> <span class="n">x</span>
+
+<span class="c"># Original</span>
+<span class="k">def</span> <span class="nf">dmap1</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">keys</span><span class="o">=</span><span class="n">identity</span><span class="p">,</span> <span class="n">values</span><span class="o">=</span><span class="n">identity</span><span class="p">):</span>
+    <span class="k">return</span> <span class="nb">dict</span><span class="p">((</span><span class="n">keys</span><span class="p">(</span><span class="n">key</span><span class="p">),</span> <span class="n">values</span><span class="p">(</span><span class="n">value</span><span class="p">))</span> <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">d</span><span class="o">.</span><span class="n">iteritems</span><span class="p">())</span>
+
+<span class="c"># Amended</span>
+<span class="nd">@Compose</span><span class="p">(</span><span class="nb">dict</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">dmap2</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">keys</span><span class="o">=</span><span class="n">identity</span><span class="p">,</span> <span class="n">values</span><span class="o">=</span><span class="n">identity</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">d</span><span class="o">.</span><span class="n">iteritems</span><span class="p">():</span>
+        <span class="k">yield</span> <span class="n">keys</span><span class="p">(</span><span class="n">key</span><span class="p">),</span> <span class="n">values</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+</pre></div>
+<p>The previous example was hardly an improvement in terms of code size,
+but some more elaborate examples are hopefully more&nbsp;motivating:</p>
+<div class="highlight"><pre><span class="nd">@Compose</span><span class="p">(</span><span class="nb">tuple</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">take</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">items</span><span class="p">):</span>
+    <span class="k">assert</span> <span class="n">n</span> <span class="o">&gt;=</span> <span class="mi">0</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">item</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">items</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">i</span> <span class="o">&gt;=</span> <span class="n">n</span><span class="p">:</span>
+            <span class="k">break</span>
+        <span class="k">yield</span> <span class="n">item</span>
+
+<span class="nd">@Compose</span><span class="p">(</span><span class="nb">set</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">words_of</span><span class="p">(</span><span class="n">dictionary</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Return the set of words in a hunspell dictionary file.&quot;&quot;&quot;</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">dictionary</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">readline</span><span class="p">()</span> <span class="c"># Skip word count</span>
+        <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">f</span><span class="p">:</span>
+            <span class="k">yield</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;/&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+</pre></div>
+<p>The composition decorator is quite general, and can be applied to
+different scenarios as well. In addition, multiple decorators can be
+chained together. For example, to produce a <em>sorted</em> sequence of
+<em>unique</em> tokens in a collection of documents, one could write the&nbsp;following:</p>
+<div class="highlight"><pre><span class="kn">import</span> <span class="nn">re</span>
+
+<span class="k">def</span> <span class="nf">tokenize</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">token</span> <span class="ow">in</span> <span class="n">re</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;[\s:;!?-]+&#39;</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+        <span class="n">token</span> <span class="o">=</span> <span class="n">token</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s">&quot;&quot;&quot;()[]{},.&quot;&#39;&quot;&quot;&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">token</span><span class="p">:</span>
+            <span class="k">yield</span> <span class="n">token</span>
+
+<span class="nd">@Compose</span><span class="p">(</span><span class="nb">sorted</span><span class="p">,</span> <span class="nb">set</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">all_words</span><span class="p">(</span><span class="n">documents</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Retrieve the set of unique words in a document, after tokenization.&quot;&quot;&quot;</span>
+    <span class="k">for</span> <span class="n">document</span> <span class="ow">in</span> <span class="n">documents</span><span class="o">.</span><span class="n">itervalues</span><span class="p">():</span>
+        <span class="k">for</span> <span class="n">word</span> <span class="ow">in</span> <span class="n">tokenize</span><span class="p">(</span><span class="n">document</span><span class="p">):</span>
+            <span class="k">yield</span> <span class="n">word</span>
+</pre></div>
+<p>Using decorators in this manner has proven quite helpful in prototypes
+and rapidly changing&nbsp;code.</p>
+<table class="docutils footnote" frame="void" id="decorators" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id1">[1]</a></td><td>For a nice introduction to decorators I recommend the series of tutorials by Bruce Eckel (part <a class="reference external" href="http://www.artima.com/weblogs/viewpost.jsp?thread=240808">1</a>, <a class="reference external" href="http://www.artima.com/weblogs/viewpost.jsp?thread=240845">2</a>, and <a class="reference external" href="http://www.artima.com/weblogs/viewpost.jsp?thread=241209">3</a>).</td></tr>
+</tbody>
+</table>
+                </article>
+<p class="paginator">
+    Page 1 / 1
+</p>
+            </aside><!-- /#featured -->
+            </ol><!-- /#posts-list -->
+            </section><!-- /#content -->
+        <section id="extras" class="body">
+                <div class="social">
+                        <h2>social</h2>
+                        <ul>
+                            <li><a href="/feeds/all.atom.xml" type="application/atom+xml" rel="alternate">atom feed</a></li>
+
+                        </ul>
+                </div><!-- /.social -->
+        </section><!-- /#extras -->
+
+        <footer id="contentinfo" class="body">
+                <p>Powered by <a href="http://getpelican.com/">Pelican</a>. Theme <a href="https://github.com/blueicefield/pelican-blueidea/">blueidea</a>, inspired by the default theme.</p>
+        </footer><!-- /#contentinfo -->
+
+</body>
+</html>

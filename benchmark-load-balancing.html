@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+        <meta charset="utf-8" />
+        <title>Benchmark Load Balancing</title>
+        <link rel="stylesheet" href="/theme/css/main.css" />
+        <link href="/feeds/all.atom.xml" type="application/atom+xml" rel="alternate" title="_ Atom Feed" />
+
+        <!--[if IE]>
+            <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+        <![endif]-->
+</head>
+
+<body id="index" class="home">
+        <header id="banner" class="body">
+                <h1><a href="/">_ </a></h1>
+                <nav><ul>
+    
+                        <li><a href="/pages/about.html">About</a></li>
+    
+                        <li><a href="/pages/projects.html">Projects</a></li>
+                    <li class="active"><a href="/category/misc.html">misc</a></li>
+                </ul>
+                </nav>
+        </header><!-- /#banner -->
+<section id="content" class="body">
+  <article>
+    <header>
+      <h1 class="entry-title">
+        <a href="/benchmark-load-balancing.html" rel="bookmark"
+           title="Permalink to Benchmark Load Balancing">Benchmark Load&nbsp;Balancing</a></h1>
+    </header>
+
+    <div class="entry-content">
+<footer class="post-info">
+        <span>Wed 08 February 2012</span>
+<span>| tags: <a href="/tag/scripts.html">scripts</a><a href="/tag/benchmarks.html">benchmarks</a></span>
+</footer><!-- /.post-info -->      <div class="section" id="the-problem">
+<h2>The&nbsp;Problem</h2>
+<p>I am always looking for ways to turn boring school assignments to fun
+projects . A recent one involves the execution of a handful of <a class="reference external" href="http://www.spec.org/cpu2006/">spec</a>
+benchmarks for a random set of <a class="reference external" href="http://gcc.gnu.org/onlinedocs/gcc-4.4.5/gcc/Optimize-Options.html">gcc flags</a> for my Compiler Optimisation
+course. This presents a slight challenge as the set of flags times the
+repetition count for each benchmark adds up to a rather large total
+execution time. Hence, parallelizing benchmark execution seemed
+reasonable and a fun-enough&nbsp;challenge.</p>
+<p>My initial approach was to load balance the benchmarks on the school&#8217;s
+16-core <tt class="docutils literal">compute</tt> machine (2 Intel X5550 Quad Cores with
+HyperThreading).  This boiled down to generating the necessary commands
+&#8212;making sure each command is allocated to a specific core with
+<tt class="docutils literal">taskset</tt>&#8212; and piping them to <tt class="docutils literal">xargs <span class="pre">-L</span> 1 <span class="pre">-P</span> $(fgrep <span class="pre">-c</span> name
+/proc/cpuinfo)</tt>.  This approach produced very large deviations however.
+This was partly because the machine was already under heavy load by
+other users &#8212;so distributing the tasks to individual CPUs instead of
+cores did not give significantly smaller deviations&nbsp;either.</p>
+<p>My next thought was to schedule the benchmarks on regular login
+machines, most of which sit idly during the night, or even most of the
+day. Running on diverse hardware is not an issue &#8212;as long as a single
+benchmark is executed on the same machine for all different flag
+combinations&#8212; since I don&#8217;t care about relative performance across
+benchmarks. One problem with this approach however, was that it involved
+finding <em>properly functioning</em> machines which are unlikely to be used,
+and noting down their host&nbsp;names.</p>
+</div>
+<div class="section" id="the-solution">
+<h2>The&nbsp;Solution</h2>
+<p>So I kept putting it off, until I became aware of a <a class="reference external" href="http://project.shearn89.com">cool undergraduate
+project</a>. The project lists all login machines and their availability
+and could not have come at a more convenient&nbsp;time.</p>
+<p>I quickly wrote down a script to scrape the <tt class="docutils literal">available</tt> page and
+distribute each separate benchmark to one&nbsp;machine.</p>
+<p>The <tt class="docutils literal">distribute</tt> script finds available machines and submits a job via
+ssh. For some reason I could not use <a class="reference external" href="http://www.gnu.org/software/screen/">screen</a> or <a class="reference external" href="http://tmux.sourceforge.net/">tmux</a>, since they
+would get killed as soon as the ssh session terminated. So I had to
+resort to good old <tt class="docutils literal">nohup</tt>. Furthermore, I opted for <tt class="docutils literal">zsh</tt> on this one
+since I was fed-up with the annoying idiosyncrasies of bash when it
+comes to separator handling &#8212;I couldn&#8217;t get the <span class="caps">HOST</span> array to split
+properly on&nbsp;newlines.</p>
+<dl class="docutils">
+<dt>distribute</dt>
+<dd><div class="first last"><div class="highlight"><pre><span class="c">#!/bin/zsh</span>
+<span class="c"># Distribute computation across different machines.</span>
+
+<span class="c"># Parse lines in the following format to retrieve hosts:</span>
+<span class="c"># &lt;span class=&#39;label label-success&#39;&gt;bazzini.inf.ed.ac.uk&lt;/span&gt;</span>
+<span class="nv">HOSTS</span><span class="o">=(</span><span class="k">$(</span>wget -O - http://project.shearn89.com/available <span class="se">\</span>
+       | sed -rn <span class="s1">&#39;/label-success/ s/.*&gt;([^&lt;]+)&lt;.*/\1/p&#39;</span><span class="k">)</span><span class="o">)</span>
+<span class="nv">i</span><span class="o">=</span>1
+<span class="k">for </span>src in <span class="nv">$@</span>; <span class="k">do</span>
+<span class="k">    </span><span class="nv">host</span><span class="o">=</span><span class="k">${</span><span class="nv">HOSTS</span><span class="p">[</span><span class="k">$((</span> i++ <span class="k">))</span><span class="p">]</span><span class="k">}</span>
+    ssh -n <span class="nv">$host</span> <span class="s2">&quot;nohup ./runjob $src&quot;</span> &amp;
+<span class="k">done</span>
+</pre></div>
+</div></dd>
+</dl>
+<p>The <tt class="docutils literal">runjob</tt> script simply changes into my project directory and
+executes the benchmark, while logging some information like which
+benchmark is matched to which&nbsp;machine.</p>
+<dl class="docutils">
+<dt>runjob</dt>
+<dd><div class="first last"><div class="highlight"><pre><span class="c">#!/bin/bash</span>
+
+<span class="nv">src</span><span class="o">=</span><span class="k">$(</span>basename <span class="nv">$1</span><span class="k">)</span>
+<span class="nb">cd </span>msc/copt1
+<span class="nv">joblog</span><span class="o">=</span><span class="s2">&quot;info.$src.$(hostname).log&quot;</span>
+date +<span class="s1">&#39;%F %T&#39;</span> &gt;&gt; <span class="nv">$joblog</span>
+cat /proc/cpuinfo  &gt;&gt; <span class="nv">$joblog</span>
+taskset -c 1 ./benchmark <span class="nv">$@</span>
+<span class="nb">echo</span> <span class="nv">$?</span> <span class="nv">$@</span> &gt;&gt; <span class="s2">&quot;$joblog&quot;</span>
+</pre></div>
+</div></dd>
+</dl>
+<p>The <tt class="docutils literal">benchmark</tt> script is responsible for reading available flags,
+compiling a benchmark and then executing it for a certain number of
+iterations. After execution is complete, average runtime and standard
+deviation are calculated with a simple <a class="reference external" href="http://www.gnu.org/software/gawk/">awk</a> script, <tt class="docutils literal">stats.awk</tt>.</p>
+<dl class="docutils">
+<dt>benchmark</dt>
+<dd><div class="first last"><div class="highlight"><pre><span class="c">#!/bin/bash</span>
+
+<span class="nv">SRC</span><span class="o">=</span><span class="s2">&quot;$1&quot;</span>
+<span class="nv">DST</span><span class="o">=</span><span class="s2">&quot;${2:-$(pwd)/out}&quot;</span>
+<span class="nv">FLAGS</span><span class="o">=</span><span class="s2">&quot;${3:-200-flags}&quot;</span>
+<span class="nv">TIMES</span><span class="o">=</span><span class="s2">&quot;${4:-12}&quot;</span>
+
+die<span class="o">()</span> <span class="o">{</span> <span class="nb">echo</span> <span class="nv">$@</span>; <span class="nb">exit </span>1; <span class="o">}</span>
+
+<span class="o">[[</span> -z <span class="s2">&quot;$SRC&quot;</span> <span class="o">]]</span> <span class="o">&amp;&amp;</span> die <span class="s2">&quot;usage: $0 src [dst=$DST] [flags=$FLAGS] [times=$TIMES]&quot;</span>
+
+<span class="nv">name</span><span class="o">=</span><span class="s2">&quot;$(basename $SRC)&quot;</span>
+<span class="nv">dst</span><span class="o">=</span><span class="s2">&quot;$DST/$name&quot;</span>
+mkdir -p <span class="s2">&quot;$dst&quot;</span> <span class="o">||</span> die <span class="s2">&quot;Failed to create output directory $dst&quot;</span>
+
+<span class="nv">log</span><span class="o">=</span><span class="s2">&quot;$dst/run.log&quot;</span>
+<span class="nv">buildlog</span><span class="o">=</span><span class="s2">&quot;$dst/build.log&quot;</span>
+
+<span class="nv">f</span><span class="o">=</span>0
+<span class="k">while </span><span class="nb">read </span>flags; <span class="k">do</span>
+    <span class="o">((</span> f++ <span class="o">))</span>
+    <span class="nv">file</span><span class="o">=</span><span class="s2">&quot;$(printf $dst/%03d.times $f)&quot;</span>
+    <span class="nv">run</span><span class="o">=</span><span class="k">$(</span><span class="nb">printf</span> <span class="s2">&quot;$(basename $SRC) %03d&quot;</span> <span class="nv">$f</span><span class="k">)</span>
+    <span class="nb">echo</span> <span class="s2">&quot;$(date +&#39;%F %T&#39;) $run $flags&quot;</span> | tee -a <span class="s2">&quot;$log&quot;</span> <span class="s2">&quot;$buildlog&quot;</span>
+
+    make -s -C <span class="s2">&quot;$SRC/src&quot;</span> <span class="nv">CFLAGS</span><span class="o">=</span><span class="s2">&quot;$flags&quot;</span> 1&gt;/dev/null 2&gt;&gt;<span class="nv">$buildlog</span> <span class="se">\</span>
+      <span class="o">||</span> die <span class="s2">&quot;Failed to build $SRC&quot;</span>
+
+    <span class="nb">pushd</span> <span class="s2">&quot;$SRC&quot;</span>
+    <span class="k">for </span>i in  <span class="k">$(</span>seq <span class="nv">$TIMES</span><span class="k">)</span>; <span class="k">do</span>
+        /usr/bin/time --output<span class="o">=</span><span class="s2">&quot;$file&quot;</span> --append <span class="se">\</span>
+                      --format<span class="o">=</span><span class="s1">&#39;r %e k %S u %U csi %c csv %w&#39;</span> <span class="se">\</span>
+                      ./run.sh 1&gt;/dev/null 2&gt;&gt;<span class="nv">$log</span>
+    <span class="k">done</span>
+<span class="k">    </span><span class="nb">popd</span>
+
+<span class="nb">    echo</span> -e <span class="s2">&quot;$name\n$flags\n$(./stats.awk $file)&quot;</span> <span class="se">\</span>
+       | tee -a <span class="s2">&quot;$dst/results.txt&quot;</span> | tail -n 1
+<span class="k">done</span> &lt; <span class="nv">$FLAGS</span>
+</pre></div>
+</div></dd>
+<dt>stats.awk</dt>
+<dd><div class="first last"><div class="highlight"><pre><span class="c1">#!/usr/bin/awk -f</span>
+
+<span class="sr">/^r/</span> <span class="p">{</span>
+    <span class="c1"># Sum kernel/user CPU time and convert to milliseconds.</span>
+    <span class="nx">cpu</span> <span class="o">=</span> <span class="mi">1000</span> <span class="o">*</span> <span class="p">(</span><span class="o">$</span><span class="mi">4</span> <span class="o">+</span> <span class="o">$</span><span class="mi">6</span><span class="p">)</span>
+    <span class="nx">sum</span> <span class="o">+=</span> <span class="nx">cpu</span>
+    <span class="nx">ssq</span> <span class="o">+=</span> <span class="nx">cpu</span> <span class="o">*</span> <span class="nx">cpu</span>
+    <span class="kr">printf</span><span class="p">(</span><span class="s2">&quot;%d &quot;</span><span class="p">,</span> <span class="nx">cpu</span><span class="p">)</span>
+<span class="p">}</span>
+
+<span class="nx">END</span> <span class="p">{</span>
+    <span class="c1"># Print a line with average runtime and standard deviation.</span>
+    <span class="nx">avg</span> <span class="o">=</span> <span class="nx">sum</span> <span class="o">/</span> <span class="nb">NR</span>
+    <span class="nx">var</span> <span class="o">=</span> <span class="nx">ssq</span> <span class="o">/</span> <span class="nb">NR</span> <span class="o">-</span> <span class="nx">avg</span> <span class="o">*</span> <span class="nx">avg</span>
+    <span class="kr">printf</span><span class="p">(</span><span class="s2">&quot;\n%.2f %.2f\n&quot;</span><span class="p">,</span> <span class="nx">avg</span><span class="p">,</span> <span class="kr">sqrt</span><span class="p">(</span><span class="nx">var</span><span class="p">))</span>
+<span class="p">}</span>
+</pre></div>
+</div></dd>
+</dl>
+<p>There is no need to move files since I am taking advantage of <a class="reference external" href="http://en.wikipedia.org/wiki/Andrew_File_System"><span class="caps">AFS</span></a>, both
+for the benchmark source and output files. Adding appropriate commands
+to set up a proper environment on local storage should be trivial&nbsp;however.</p>
+<div class="section" id="future-work">
+<h3>Future&nbsp;Work</h3>
+<p>The distribution scripts are a bit rough and assigning jobs to machines
+randomly is not the best approach. For example, some machines are i3
+Quad Cores at 3.0GHz, while others are dated Core 2 Duo at 1.8GHz. It
+should be relatively straightforward to retrieve the specs of each
+machine and assign benchmarks to machines with adequate performance and
+no load &#8212;ideally such information should be provided in the original
+listing though. For example, the following script generates such a&nbsp;list:</p>
+<dl class="docutils">
+<dt>machines</dt>
+<dd><div class="first last"><div class="highlight"><pre><span class="c">#!/bin/bash</span>
+
+stathosts<span class="o">()</span> <span class="o">{</span>
+    <span class="k">while </span><span class="nb">read </span>host; <span class="k">do</span>
+        <span class="o">[[</span> <span class="s2">&quot;$host&quot;</span> <span class="o">=</span> <span class="s2">&quot;Available&quot;</span> <span class="o">]]</span> <span class="o">&amp;&amp;</span> <span class="k">continue</span>
+<span class="k">        </span><span class="nb">echo</span> <span class="nv">$host</span>
+        ssh -nT <span class="nv">$host</span> <span class="s1">&#39;fgrep name /proc/cpuinfo; uptime; exit&#39;</span>
+        <span class="nb">echo</span>
+<span class="nb">    </span><span class="k">done</span>
+<span class="o">}</span>
+
+wget -O - http://project.shearn89.com/available |<span class="se">\</span>
+sed -rn <span class="s1">&#39;/label-success/ s/.*&gt;([^&lt;]+)&lt;.*/\1/p&#39;</span>  |<span class="se">\</span>
+stathosts &gt; <span class="k">${</span><span class="nv">1</span><span class="k">:-</span><span class="nv">host</span><span class="p">.stats</span><span class="k">}</span>
+</pre></div>
+</div></dd>
+</dl>
+<p>It is then just a matter of turning this information into a usable
+heuristic. The benchmarks could be also ranked slowest to fastest with a
+script like the&nbsp;following:</p>
+<dl class="docutils">
+<dt>rank</dt>
+<dd><div class="first last"><div class="highlight"><pre><span class="c">#!/bin/bash</span>
+
+<span class="k">for </span>src in <span class="nv">$@</span>; <span class="k">do</span>
+<span class="k">    </span>make -C <span class="nv">$src</span>/src &amp;&gt;/dev/null
+    <span class="nb">pushd</span> <span class="nv">$src</span> &amp;&gt;/dev/null
+    /usr/bin/time --format<span class="o">=</span><span class="s1">&#39;%e&#39;</span> --output<span class="o">=</span>&gt;<span class="o">(</span><span class="nb">read </span>t; <span class="nb">echo</span> <span class="nv">$t</span> <span class="k">$(</span>basename <span class="nv">$src</span><span class="k">)</span><span class="o">)</span> <span class="se">\</span>
+                  taskset -c 0 ./run.sh &amp;&gt;/dev/null
+    <span class="nb">popd</span> &amp;&gt;/dev/null
+<span class="k">done</span> | sort -rgk 1 | cut -d<span class="s1">&#39; &#39;</span> -f 2
+</pre></div>
+</div></dd>
+</dl>
+<p>Finally, the distribution script assumes there will always be more
+machines than benchmarks, which might not always be the&nbsp;case.</p>
+</div>
+<div class="section" id="update-2012-02-24">
+<h3>Update&nbsp;(2012-02-24)</h3>
+<p>I came up with a heuristic, a bit rough but does the job. It takes into
+account the frequency of the <span class="caps">CPU</span>, a user-supplied weight based on its
+type, and the system load. In the end, I decided to stick to a single
+<span class="caps">CPU</span> type, so that my results were directly comparable across benchmarks.
+To do that I just set all non-i3 multipliers to 0 in the following
+<tt class="docutils literal">rankhost</tt> script.</p>
+<dl class="docutils">
+<dt>rankhosts</dt>
+<dd><div class="first last"><div class="highlight"><pre><span class="c">#!/bin/bash</span>
+
+<span class="c"># Set the multipliers depending on the processor model.</span>
+<span class="nv">FACTOR_I3</span><span class="o">=</span>1.8 <span class="c"># Core i3</span>
+<span class="nv">FACTOR_CD</span><span class="o">=</span>1.0 <span class="c"># Core 2 Duo</span>
+<span class="nv">FACTOR_C2</span><span class="o">=</span>0.8 <span class="c"># Core 2</span>
+
+cpu_core<span class="o">()</span> <span class="o">{</span>
+    fgrep -c name /proc/cpuinfo
+<span class="o">}</span>
+
+cpu_freq<span class="o">()</span> <span class="o">{</span>
+    <span class="nv">name</span><span class="o">=</span><span class="k">$(</span>fgrep name /proc/cpuinfo | sed 1q<span class="k">)</span>
+    <span class="nv">freq</span><span class="o">=</span><span class="k">$(</span><span class="nb">echo</span> <span class="nv">$name</span> | sed -r <span class="s1">&#39;s/.*@[ \t]+([0-9.]+)GHz$/\1/&#39;</span><span class="k">)</span>
+    <span class="k">case</span> <span class="nv">$name</span> in
+        *i3-*<span class="o">)</span>
+            <span class="nv">factor</span><span class="o">=</span><span class="nv">$FACTOR_I3</span> ;;
+        *Duo*<span class="o">)</span>
+            <span class="nv">factor</span><span class="o">=</span><span class="nv">$FACTOR_CD</span> ;;
+        *<span class="o">)</span>
+            <span class="nv">factor</span><span class="o">=</span><span class="nv">$FACTOR_C2</span> ;;
+    <span class="k">esac</span>
+<span class="k">    </span><span class="nb">echo</span> <span class="s2">&quot;( $freq * $factor )&quot;</span>
+<span class="o">}</span>
+
+sys_load<span class="o">()</span> <span class="o">{</span>
+    <span class="nv">cores</span><span class="o">=</span><span class="k">$(</span>cpu_core<span class="k">)</span>
+    <span class="nv">loads</span><span class="o">=</span><span class="k">$(</span>uptime | sed <span class="s1">&#39;s/.*load average://; s/,/ +/g&#39;</span><span class="k">)</span>
+    <span class="nb">echo</span> <span class="s2">&quot;( ($loads) / (3 * $cores) )&quot;</span>
+<span class="o">}</span>
+
+<span class="nb">echo</span> <span class="s2">&quot;scale=4; $(cpu_freq) /  (10 * (0.1 + $(sys_load)))&quot;</span> | bc
+</pre></div>
+</div></dd>
+</dl>
+<p>I placed some the ranking code into a separate file &#8212;so as to easily
+run the functions from the shell&#8212; and modified the distribution script&nbsp;accordingly.</p>
+<dl class="docutils">
+<dt>functions</dt>
+<dd><div class="first last"><div class="highlight"><pre><span class="c">#!/bin/bash</span>
+
+rank_spec<span class="o">()</span> <span class="o">{</span>
+  <span class="k">for </span>src in <span class="nv">$@</span>; <span class="k">do</span>
+<span class="k">    </span>make -C <span class="nv">$src</span>/src &amp;&gt;/dev/null
+    <span class="nb">pushd</span> <span class="nv">$src</span> &amp;&gt;/dev/null
+    /usr/bin/time --format<span class="o">=</span><span class="s1">&#39;%e&#39;</span> --output<span class="o">=</span>&gt;<span class="o">(</span><span class="nb">read </span>t; <span class="nb">echo</span> <span class="nv">$t</span> <span class="k">$(</span>basename <span class="nv">$src</span><span class="k">)</span><span class="o">)</span> <span class="se">\</span>
+                  taskset -c 0 ./run.sh &amp;&gt;/dev/null
+    <span class="nb">popd</span> &amp;&gt;/dev/null
+  <span class="k">done</span> | sort -rgk 1 | cut -d<span class="s1">&#39; &#39;</span> -f 2
+<span class="o">}</span>
+
+list_hosts<span class="o">()</span> <span class="o">{</span>
+  wget -O - http://project.shearn89.com/available <span class="se">\</span>
+  | sed -rn <span class="s1">&#39;/Available/n; /label-success/ s/.*&gt;([^&lt;]+)&lt;.*/\1/p&#39;</span>
+<span class="o">}</span>
+
+rank_hosts<span class="o">()</span> <span class="o">{</span>
+  list_hosts | <span class="k">while </span><span class="nb">read </span>host; <span class="k">do</span>
+<span class="k">    </span><span class="nb">echo</span> <span class="k">$(</span>ssh -nT <span class="nv">$host</span> <span class="s1">&#39;~/rankhost; exit&#39;</span><span class="k">)</span> <span class="nv">$host</span>
+  <span class="k">done</span> | sed <span class="s1">&#39;/^[^1-9]/d&#39;</span> | sort -rgk 1 | cut -d<span class="s1">&#39; &#39;</span> -f 2
+<span class="o">}</span>
+
+cached_hosts<span class="o">()</span> <span class="o">{</span>
+  <span class="nb">local </span><span class="nv">h</span><span class="o">=</span>hosts.cache
+  <span class="o">[[</span> -e <span class="nv">$h</span> <span class="o">]]</span> <span class="o">&amp;&amp;</span> cat <span class="nv">$h</span> <span class="o">||</span> <span class="o">{</span> rank_hosts | tee <span class="nv">$h</span>; <span class="o">}</span>
+<span class="o">}</span>
+</pre></div>
+</div></dd>
+<dt>distribute-new</dt>
+<dd><div class="first last"><div class="highlight"><pre><span class="c">#!/bin/bash</span>
+
+<span class="nb">source</span> <span class="k">$(</span>dirname <span class="nv">$0</span><span class="k">)</span>/functions
+
+<span class="nv">HOSTS</span><span class="o">=(</span><span class="k">$(</span>cached_hosts<span class="k">)</span><span class="o">)</span>
+<span class="k">for </span>src in <span class="nv">$@</span>; <span class="k">do</span>
+<span class="k">  </span><span class="nv">host</span><span class="o">=</span><span class="k">${</span><span class="nv">HOSTS</span><span class="p">[</span><span class="k">$((</span> i++ <span class="k">))</span><span class="p">]</span><span class="k">}</span>
+  ssh -n <span class="nv">$host</span> <span class="s2">&quot;nohup ~/runjob $src 200-flags; exit&quot;</span> &amp;
+<span class="k">done</span>
+</pre></div>
+</div></dd>
+</dl>
+<p>To make sure any benchmark results were not affected by <span class="caps">AFS</span> or disk I/O
+latency I further modified the <cite>runjob</cite> script to execute the benchmark
+out of a <span class="caps">RAM</span> filesystem, under <cite>/dev/shm/</cite>.</p>
+<dl class="docutils">
+<dt>runjob-new</dt>
+<dd><div class="first last"><div class="highlight"><pre><span class="c">#!/bin/bash</span>
+
+<span class="nv">dst</span><span class="o">=</span>/dev/shm/mike
+<span class="nv">results</span><span class="o">=</span><span class="nv">$dst</span>/results
+mkdir -p <span class="nv">$results</span>
+
+<span class="nv">src</span><span class="o">=</span><span class="nv">$1</span>
+<span class="nv">flags</span><span class="o">=</span><span class="nv">$2</span>
+
+<span class="nb">cd</span> ~/msc/copt1
+cp -r <span class="nv">$src</span> <span class="nv">$flags</span> <span class="nv">$dst</span>
+<span class="nv">src</span><span class="o">=</span><span class="k">$(</span>basename <span class="nv">$src</span><span class="k">)</span>
+<span class="nv">flags</span><span class="o">=</span><span class="nv">$dst</span>/<span class="k">$(</span>basename <span class="nv">$flags</span><span class="k">)</span>
+<span class="nv">log</span><span class="o">=</span><span class="s2">&quot;results/info.$src.$(hostname)&quot;</span>
+<span class="o">{</span> date +<span class="s1">&#39;%F %T&#39;</span>;
+  cat /proc/cpuinfo;
+  free -m; <span class="o">}</span> &gt; <span class="nv">$log</span>
+taskset -c 1 ./src/benchmark <span class="nv">$dst</span>/<span class="nv">$src</span> <span class="nv">$results</span> <span class="nv">$flags</span> 15
+<span class="nb">echo</span> <span class="nv">$?</span> <span class="nv">$@</span> &gt;&gt; <span class="nv">$log</span>
+cp -r <span class="nv">$results</span>/* results <span class="o">&amp;&amp;</span> rm -rf <span class="nv">$dst</span> <span class="o">||</span> <span class="nb">echo</span> <span class="s2">&quot;CLEAN UP FAILED&quot;</span>
+</pre></div>
+</div></dd>
+</dl>
+</div>
+</div>
+
+    </div><!-- /.entry-content -->
+
+  </article>
+</section>
+        <section id="extras" class="body">
+                <div class="social">
+                        <h2>social</h2>
+                        <ul>
+                            <li><a href="/feeds/all.atom.xml" type="application/atom+xml" rel="alternate">atom feed</a></li>
+
+                        </ul>
+                </div><!-- /.social -->
+        </section><!-- /#extras -->
+
+        <footer id="contentinfo" class="body">
+                <p>Powered by <a href="http://getpelican.com/">Pelican</a>. Theme <a href="https://github.com/blueicefield/pelican-blueidea/">blueidea</a>, inspired by the default theme.</p>
+        </footer><!-- /#contentinfo -->
+
+</body>
+</html>

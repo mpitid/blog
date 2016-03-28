@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+        <meta charset="utf-8" />
+        <title>When disks fail</title>
+        <link rel="stylesheet" href="/theme/css/main.css" />
+        <link href="/feeds/all.atom.xml" type="application/atom+xml" rel="alternate" title="_ Atom Feed" />
+
+        <!--[if IE]>
+            <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+        <![endif]-->
+</head>
+
+<body id="index" class="home">
+        <header id="banner" class="body">
+                <h1><a href="/">_ </a></h1>
+                <nav><ul>
+    
+                        <li><a href="/pages/about.html">About</a></li>
+    
+                        <li><a href="/pages/projects.html">Projects</a></li>
+                    <li class="active"><a href="/category/misc.html">misc</a></li>
+                </ul>
+                </nav>
+        </header><!-- /#banner -->
+<section id="content" class="body">
+  <article>
+    <header>
+      <h1 class="entry-title">
+        <a href="/when-disks-fail.html" rel="bookmark"
+           title="Permalink to When disks fail">When disks&nbsp;fail</a></h1>
+    </header>
+
+    <div class="entry-content">
+<footer class="post-info">
+        <span>Thu 21 July 2011</span>
+<span>| tags: <a href="/tag/guide.html">guide</a></span>
+</footer><!-- /.post-info -->      <p>In the last year I&#8217;ve had to recover data from two failing disks as well
+as one accidental formating. Overall I was successful, thanks to a
+couple of excellent free software power tools: <a class="reference external" href="http://www.gnu.org/software/ddrescue/ddrescue.html">ddrescue</a> <a class="footnote-reference" href="#confused" id="id1">[1]</a>
+and <a class="reference external" href="http://www.cgsecurity.org/wiki/TestDisk">testdisk</a>.</p>
+<p>Because the process is somewhat involved, I decided to write this short
+guide as a quick reference, both for myself and anyone who has to deal
+with such&nbsp;&#8220;disasters&#8221;.</p>
+<div class="section" id="step-1-identifying-a-failing-disk">
+<h2>Step 1: Identifying a failing&nbsp;disk</h2>
+<p>While identifying a <em>failed</em> disk is usually straightforward &#8212;you can&#8217;t
+use it anymore&#8212; identifying one that is <em>failing</em> is not as&nbsp;simple.</p>
+<p>First of, make sure you have <a class="reference internal" href="#smart-monitoring"><span class="caps">SMART</span> monitoring</a> enabled, and that you
+regularly check the overall health status of the disk. Other things to
+look out for are unusual mechanical noises (e.g.  clicking sounds) and
+lack of system responsiveness without a high <span class="caps">CPU</span> load, a common
+side-effect of disk read errors <a class="footnote-reference" href="#monitor" id="id2">[2]</a>.</p>
+</div>
+<div class="section" id="step-2-recovering-raw-data">
+<h2>Step 2: Recovering raw&nbsp;data</h2>
+<p>Using <a class="reference external" href="http://www.gnu.org/software/ddrescue/ddrescue.html">ddrescue</a> is a bit confusing with only its manpage as reference.
+Fortunately, it comes with a comprehensive <a class="reference external" href="http://www.gnu.org/software/ddrescue/manual/ddrescue_manual.html">manual</a> which you <em>absolutely
+must</em> read before attempting a rescue. I&#8217;m providing a brief overview of
+its usage, but be aware that this is no replacement for the full manual,
+and since I&#8217;m no expert on data recovery this information may well be
+inaccurate and&nbsp;incomplete.</p>
+<p>The overall approach of ddrescue is to read the good blocks of the
+failing device first, before trying hard to recover problematic sectors.
+This is based on the observation that a failing drive develops more and
+more errors as time passes, which is accurate most of the&nbsp;time.</p>
+<p>The proposed usage on disk drives consists of two separate runs. The
+first tries to be as fast as possible, while the second tries to rescue
+as many sectors as possible, by splitting unreadable blocks into smaller
+ones, until the hardware limit is reached. Thus you end up running
+something like the&nbsp;following:</p>
+<div class="highlight"><pre>ddrescue --no-split /dev/sda sda.img sda.log
+</pre></div>
+<p>followed&nbsp;by</p>
+<div class="highlight"><pre>ddrescue --direct /dev/sda sda.img sda.log
+</pre></div>
+<p>The log file will keep track of unreadable sectors and instruct the
+second run to only work on those instead of re-reading the disk. It can
+also be helpful if for some reason you have to interrupt the rescue, and
+continue at a later&nbsp;point.</p>
+<p>It&#8217;s good practice to make an image of the failing disk instead of
+rescuing directly to a different device, and even better to work on
+copies of this image when trying to repair filesystems or recover files.
+The <tt class="docutils literal"><span class="pre">--sparse</span></tt> option of <a class="reference external" href="http://www.gnu.org/software/ddrescue/ddrescue.html">ddrescue</a> can save some space in this case,
+provided your filesystem supports sparse files and the disk has large
+unwritten areas. After recovery is complete, you can use ddrescue or
+some other program (e.g. <tt class="docutils literal">dd</tt>) to write the image to a new&nbsp;device.</p>
+<p>However, space limitations may require rescuing directly to another
+device, in which case you will have to provide the <tt class="docutils literal"><span class="pre">--force</span></tt> flag to&nbsp;ddrescue.</p>
+<p>What follows is sample output from <a class="reference external" href="http://www.gnu.org/software/ddrescue/ddrescue.html">ddrescue</a> when recovering the 3rd
+partition of a failing drive. At this point, errors are starting to
+appear after having read 100 GBs of&nbsp;data.</p>
+<div class="highlight"><pre>$ ddrescue --no-split /dev/sdb3 sdb3.img sdb3.log
+
+Press Ctrl-C to interrupt
+Initial status (read from logfile)
+rescued:         0 B,  errsize:       0 B,  errors:       0
+Current status
+rescued:   108539 MB,  errsize:  21117 kB,  current rate:    14224 B/s
+   ipos:   108560 MB,   errors:     331,    average rate:   10534 kB/s
+   opos:   108560 MB,     time from last successful read:       0 s
+</pre></div>
+<p>And here is the second pass which was left overnight, for roughly 10
+hours. You can see how the error size has been reduced to a mere 370 KBs
+from the initial 21 MBs. Shortly after, I decided to call it quits and
+interrupt the recovery. This partition did not hold very important data
+anyway, it was mountable (i.e. no obvious filesystem damage) and it did
+not seem like I would be getting anything more out of that&nbsp;disk.</p>
+<div class="highlight"><pre>$ ddrescue --direct --max-retries 2 /dev/sdb3 sdb3.img sdb3.log
+
+Press Ctrl-C to interrupt
+Initial status (read from logfile)
+rescued:   159208 MB,  errsize:  10821 kB,  errors:     357
+Current status
+rescued:   159218 MB,  errsize:    370 kB,  current rate:        0 B/s
+   ipos:   108542 MB,   errors:     367,    average rate:      291 B/s
+   opos:   108542 MB,     time from last successful read:     1.5 h
+Retrying bad sectors... Retry 2
+</pre></div>
+<p>Refer to the ddrescue <a class="reference external" href="http://www.gnu.org/software/ddrescue/manual/ddrescue_manual.html">manual</a> for advice on how to detect corrupt files,
+and how to wipe the disk clean before sending it for&nbsp;replacement.</p>
+<p>To test if a partition is mountable you can use something like the&nbsp;following:</p>
+<div class="highlight"><pre>mount -o ro,loop sdb3.img /mnt
+</pre></div>
+<div class="attention">
+<p class="first admonition-title">Attention!</p>
+<p>Note the read-only option which ensures nothing is written to the
+possibly corrupt filesystem &#8212; like access times for instance. If you
+are rescuing a whole disk image and want to check out a specific
+partition, you can use <a class="reference external" href="http://www.cgsecurity.org/wiki/TestDisk">testdisk</a>, or specify a byte offset when
+mounting. For example, the first partition usually starts after 512
+bytes <a class="footnote-reference" href="#mbr" id="id3">[3]</a>.</p>
+<div class="last"><div class="highlight"><pre>mount -o ro,loop,offset<span class="o">=</span>512 sdb.img /mnt
+</pre></div>
+</div></div>
+</div>
+<div class="section" id="step-3-recovering-specific-files">
+<h2>Step 3: Recovering specific&nbsp;files</h2>
+<p>Recovering raw data is only part of the solution. What happens when our
+data is there, but the information to retrieve them is lost? In our
+current scenario this may occur because some of the unrecovered sectors
+included filesystem data. Another common scenario is when we delete
+some files we shouldn&#8217;t &#8212; or in my case, format the wrong drive. The
+careful reader will also notice that the two scenarios overlap: it&#8217;s
+entirely possible, and probable, that we will come across previously
+deleted files in our effort to recover damaged sections of the
+filesystem. So, don&#8217;t be surprised if deleted files start to crop&nbsp;up.</p>
+<p>Now that we recovered as much raw data as possible, it&#8217;s time for damage
+control. If you are lucky you managed to recover all of the data, or the
+unreadable sectors did not corrupt the filesystem and the partition
+table. If not, don&#8217;t despair just yet, it&#8217;s time to give <a class="reference external" href="http://www.cgsecurity.org/wiki/TestDisk">testdisk</a> a
+try. (Another likely scenario is that you accidentally formatted a disk
+partition with valuable&nbsp;data)</p>
+<p><a class="reference external" href="http://www.cgsecurity.org/wiki/TestDisk">testdisk</a> can work on disk images as well as actual devices. It has
+support for the most popular partition table formats, filesystems and
+file types. It can reconstruct partition and filesystem information. It
+can also be used to interactively copy recovered files or whole
+directories. Finally, it can write the reconstructed information back to
+the disk or&nbsp;image.</p>
+<p>Its interface is interactive &#8212; albeit text based. Various tutorials and
+walkthroughs are available at the project&#8217;s&nbsp;wiki.</p>
+<p>I successfully used <a class="reference external" href="http://www.cgsecurity.org/wiki/TestDisk">testdisk</a> to recover most of the data of a <span class="caps">FAT32</span>
+partition that I accidentally reformatted. Not all of the data was
+recoverable though, some were overwritten before I realised my&nbsp;mistake.</p>
+<p>I was also impressed by the prompt response to a problem I encountered.
+Greek filenames did not appear correctly, but a couple of email
+exchanges later and a fix was readily available by testdisk&#8217;s&nbsp;author.</p>
+</div>
+<div class="section" id="caveats">
+<h2>Caveats</h2>
+<div class="section" id="linux-device-naming">
+<h3>Linux device&nbsp;naming</h3>
+<p>Be aware that the naming of devices under <tt class="docutils literal">/dev</tt> is not particularly
+stable under Linux with recent udev versions, even across&nbsp;reboots.</p>
+<p>Make sure you use UUIDs in <tt class="docutils literal">/etc/fstab</tt> before you start plugging in
+different disks (to avoid trying to mount the damaged disk), and always
+double check that you are reading and writing over the correct devices.
+You can discover UUIDs by looking at the symlinks in
+<tt class="docutils literal"><span class="pre">/dev/disk/by-uuid</span></tt> or by studying the output of <tt class="docutils literal">blkid</tt>.</p>
+<p>Another approach is to run <tt class="docutils literal">smartctl <span class="pre">-i</span> /dev/xxx</tt> to list the
+manufacturer and model name of a device, to make sure it is the correct
+one, or use one of the symlinks in <tt class="docutils literal"><span class="pre">/dev/disk/by-id</span></tt>.</p>
+</div>
+</div>
+<div class="section" id="appendix">
+<h2>Appendix</h2>
+<div class="section" id="smart">
+<span id="smart-monitoring"></span><h3><span class="caps">SMART</span></h3>
+<p><a class="reference external" href="http://en.wikipedia.org/wiki/S.M.A.R.T."><span class="caps">SMART</span></a>, short for Self-Monitoring, Analysis and Reporting Technology, is
+a standard to monitor hard disk drives in the hope of predicting
+imminent hardware failures. Since not all of the information reported is
+standardized and since certain values have different meanings across
+manufacturers, it is not always reliable as a health assessment tool.
+Nevertheless, some information is better than no information, and a
+device that keeps logging <span class="caps">SMART</span> errors is more likely to fail in the
+near future than one that appears&nbsp;healthy.</p>
+<p>On <span class="caps">GNU</span>/Linux the <a class="reference external" href="http://smartmontools.sourceforge.net">smartmontools</a> suite can be used to query <span class="caps">SMART</span>
+information and perform <span class="caps">SMART</span> self tests. In addition, the <a class="reference external" href="http://www.guzu.net/linux/hddtemp.php">hddtemp</a>
+utility can be used to query temperature information (which itself
+relies on <span class="caps">SMART</span>&nbsp;data).</p>
+<p><a class="reference external" href="http://crystalmark.info/software/CrystalDiskInfo/index-e.html">CrystalDiskInfo</a> is an excellent <span class="caps">SMART</span> monitoring tool for windows
+systems. I always keep a copy of the portable version on a <span class="caps">USB</span> key
+myself. Another promising monitoring tool for windows is <a class="reference external" href="http://openhardwaremonitor.org">Open Hardware
+Monitor</a>, which provides information on modern <span class="caps">CPU</span> and <span class="caps">GPU</span> sensors as&nbsp;well.</p>
+<table class="docutils footnote" frame="void" id="confused" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id1">[1]</a></td><td>Not to be confused with a different but similarly named tool, <a class="reference external" href="http://www.garloff.de/kurt/linux/ddrescue">dd_rescue</a>.</td></tr>
+</tbody>
+</table>
+<table class="docutils footnote" frame="void" id="monitor" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id2">[2]</a></td><td>Some useful system monitoring tools for <span class="caps">GNU</span>/Linux include <a class="reference external" href="http://htop.sourceforge.net">htop</a>, <a class="reference external" href="http://guichaz.free.fr/iotop">iotop</a> and <a class="reference external" href="http://pagesperso-orange.fr/sebastien.godard">sysstat</a>.</td></tr>
+</tbody>
+</table>
+<table class="docutils footnote" frame="void" id="mbr" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id3">[3]</a></td><td>These consist of the <em>Master Boot Record</em> which contains the device&#8217;s partition table.</td></tr>
+</tbody>
+</table>
+</div>
+</div>
+
+    </div><!-- /.entry-content -->
+
+  </article>
+</section>
+        <section id="extras" class="body">
+                <div class="social">
+                        <h2>social</h2>
+                        <ul>
+                            <li><a href="/feeds/all.atom.xml" type="application/atom+xml" rel="alternate">atom feed</a></li>
+
+                        </ul>
+                </div><!-- /.social -->
+        </section><!-- /#extras -->
+
+        <footer id="contentinfo" class="body">
+                <p>Powered by <a href="http://getpelican.com/">Pelican</a>. Theme <a href="https://github.com/blueicefield/pelican-blueidea/">blueidea</a>, inspired by the default theme.</p>
+        </footer><!-- /#contentinfo -->
+
+</body>
+</html>
