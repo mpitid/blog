@@ -8,8 +8,8 @@ to blog sites, has comprehensive documentation and is written in
 if I have&amp;nbsp;to.&lt;/p&gt;
 &lt;p&gt;While I&amp;#8217;ve been using &lt;a class="reference external" href="https://daringfireball.net/projects/markdown"&gt;Markdown&lt;/a&gt; heavily for the past few years, it has
 some serious limitations when it comes to writing extensive
-documentation in it (captured succinctly in a &lt;a class="reference external" href="http://ericholscher.com/blog/2016/mar/15/dont-use-markdown-for-technical-docs/"&gt;blog by Erich
-Holcher&lt;/a&gt;). Hence, I&amp;#8217;m taking this opportunity to re-evaluate
+documentation in it (captured succinctly in a &lt;a class="reference external" href="http://ericholscher.com/blog/2016/mar/15/dont-use-markdown-for-technical-docs/"&gt;blog by Eric
+Holscher&lt;/a&gt;). Hence, I&amp;#8217;m taking this opportunity to re-evaluate
 &lt;a class="reference external" href="http://docutils.sourceforge.net/rst.html"&gt;reStructuredText&lt;/a&gt;, and probably &lt;a class="reference external" href="http://www.methods.co.nz/asciidoc"&gt;Asciidoc&lt;/a&gt; at some later&amp;nbsp;point.&lt;/p&gt;
 &lt;p&gt;I have migrated most of the old content, and I&amp;#8217;ll be updating the theme
 in the upcoming weeks as I add new&amp;nbsp;entries.&lt;/p&gt;
