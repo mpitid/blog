@@ -34,7 +34,7 @@ output with the following:
 .. code-block:: shell
 
   pelican content -o output -s publishconf.py
-  ghp-import output -m "new post" output
+  ghp-import output -m "new post"
   git push origin gh-pages
   git checkout master && rm -r output
 
