@@ -15,11 +15,13 @@ automate the management of the &lt;tt class="docutils literal"&gt;&lt;span class
 &lt;span class="nb"&gt;cd&lt;/span&gt; output &lt;span class="o"&gt;&amp;amp;&amp;amp;&lt;/span&gt; python -m pelican.server
 firefox localhost:8000
 &lt;/pre&gt;&lt;/div&gt;
-&lt;p&gt;Finally, after committing and pushing the master branch, publish the
-output with the&amp;nbsp;following:&lt;/p&gt;
+&lt;p&gt;After committing and pushing the master branch, publish the output with
+the&amp;nbsp;following:&lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;pelican content -o output -s publishconf.py
 ghp-import output -m &lt;span class="s2"&gt;&amp;quot;new post&amp;quot;&lt;/span&gt;
-git push origin gh-pages
+&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;Do a final check and if everything checks out,&amp;nbsp;push:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;git checkout gh-pages &lt;span class="o"&gt;&amp;amp;&amp;amp;&lt;/span&gt; git push origin gh-pages
 git checkout master &lt;span class="o"&gt;&amp;amp;&amp;amp;&lt;/span&gt; rm -r output
 &lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;For more information consult the &lt;a class="reference external" href="https://help.github.com/categories/github-pages-basics/"&gt;github-pages&lt;/a&gt; documentation, the
