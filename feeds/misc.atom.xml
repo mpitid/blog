@@ -1,5 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
-<feed xmlns="http://www.w3.org/2005/Atom"><title>_</title><link href="http://mpitid.github.io/blog/" rel="alternate"></link><link href="http://mpitid.github.io/blog/feeds/misc.atom.xml" rel="self"></link><id>http://mpitid.github.io/blog/</id><updated>2016-03-28T21:00:00+01:00</updated><entry><title>Moving to pelican</title><link href="http://mpitid.github.io/blog/moving-to-pelican.html" rel="alternate"></link><updated>2016-03-28T21:00:00+01:00</updated><author><name>michaelp</name></author><id>tag:mpitid.github.io,2016-03-28:blog/moving-to-pelican.html</id><summary type="html">&lt;p&gt;It&amp;#8217;s been a while since I&amp;#8217;ve written anything for this site. In the
+<feed xmlns="http://www.w3.org/2005/Atom"><title>_</title><link href="http://mpitid.github.io/blog/" rel="alternate"></link><link href="http://mpitid.github.io/blog/feeds/misc.atom.xml" rel="self"></link><id>http://mpitid.github.io/blog/</id><updated>2017-07-07T16:00:00+01:00</updated><entry><title>Pelican workflow</title><link href="http://mpitid.github.io/blog/pelican-workflow.html" rel="alternate"></link><updated>2017-07-07T16:00:00+01:00</updated><author><name>michaelp</name></author><id>tag:mpitid.github.io,2017-07-07:blog/pelican-workflow.html</id><summary type="html">&lt;p&gt;Time flies &amp;#8212;having an audience of one does not help either. Since it&amp;#8217;s
+been so long since I&amp;#8217;ve used my new pelican workflow, I had to
+reconstruct most of it, so I&amp;#8217;m putting it down in this post as faster
+reminder just in case (although I&amp;#8217;m sure I&amp;#8217;ll be updating frequently
+&lt;em&gt;this time&lt;/em&gt;&amp;nbsp;:P).&lt;/p&gt;
+&lt;p&gt;First off, a few&amp;nbsp;packages:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;aptitude install pelican python-typogrify ghp-import
+&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;The fist two are fairly straightforward while the latter is used to
+automate the management of the &lt;tt class="docutils literal"&gt;&lt;span class="pre"&gt;gh-pages&lt;/span&gt;&lt;/tt&gt; branch required by
+&lt;a class="reference external" href="https://help.github.com/categories/github-pages-basics/"&gt;github-pages&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;After writing new posts or updating content test locally with something&amp;nbsp;like&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;pelican content
+&lt;span class="nb"&gt;cd&lt;/span&gt; output &lt;span class="o"&gt;&amp;amp;&amp;amp;&lt;/span&gt; python -m pelican.server
+firefox localhost:8000
+&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;Finally, after committing and pushing the master branch, publish the
+output with the&amp;nbsp;following:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;pelican content -o output -s publishconf.py
+ghp-import output -m &lt;span class="s2"&gt;&amp;quot;new post&amp;quot;&lt;/span&gt;
+git push origin gh-pages
+git checkout master &lt;span class="o"&gt;&amp;amp;&amp;amp;&lt;/span&gt; rm -r output
+&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;For more information consult the &lt;a class="reference external" href="https://help.github.com/categories/github-pages-basics/"&gt;github-pages&lt;/a&gt; documentation, the
+&lt;a class="reference external" href="http://docs.getpelican.com/en/stable/publish.html"&gt;pelican publishing&lt;/a&gt; guide and the relevant &lt;a class="reference external" href="http://docs.getpelican.com/en/3.6.3/tips.html#publishing-to-github"&gt;pelican tips&lt;/a&gt;.&lt;/p&gt;
+</summary><category term="markup"></category><category term="meta"></category></entry><entry><title>Moving to pelican</title><link href="http://mpitid.github.io/blog/moving-to-pelican.html" rel="alternate"></link><updated>2016-03-28T21:00:00+01:00</updated><author><name>michaelp</name></author><id>tag:mpitid.github.io,2016-03-28:blog/moving-to-pelican.html</id><summary type="html">&lt;p&gt;It&amp;#8217;s been a while since I&amp;#8217;ve written anything for this site. In the
 meantime, &lt;a class="reference external" href="https://jaspervdj.be/hakyll"&gt;Hakyll&lt;/a&gt; has changed significantly enough to break my previous
 setup and I&amp;#8217;ve been itching to try a different site&amp;nbsp;generator.&lt;/p&gt;
 &lt;p&gt;After a bit of research, I&amp;#8217;ve decided to try out &lt;a class="reference external" href="http://getpelican.com"&gt;Pelican&lt;/a&gt;. It&amp;#8217;s tailored

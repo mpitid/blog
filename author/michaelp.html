@@ -23,7 +23,56 @@
 
             <aside id="featured" class="body">
                 <article>
-                    <h1 class="entry-title"><a href="http://mpitid.github.io/blog/moving-to-pelican.html">Moving to&nbsp;pelican</a></h1>
+                    <h1 class="entry-title"><a href="http://mpitid.github.io/blog/pelican-workflow.html">Pelican&nbsp;workflow</a></h1>
+<footer class="post-info">
+        <abbr class="published" title="2017-07-07T16:00:00+01:00">
+                Published: Fri 07 July 2017
+        </abbr>
+
+        <address class="vcard author">
+                By                         <a class="url fn" href="http://mpitid.github.io/blog/author/michaelp.html">michaelp</a>
+        </address>
+<p>In <a href="http://mpitid.github.io/blog/category/misc.html">misc</a>.</p>
+<p>tags: <a href="http://mpitid.github.io/blog/tag/markup.html">markup</a> <a href="http://mpitid.github.io/blog/tag/meta.html">meta</a> </p>
+</footer><!-- /.post-info --><p>Time flies &#8212;having an audience of one does not help either. Since it&#8217;s
+been so long since I&#8217;ve used my new pelican workflow, I had to
+reconstruct most of it, so I&#8217;m putting it down in this post as faster
+reminder just in case (although I&#8217;m sure I&#8217;ll be updating frequently
+<em>this time</em>&nbsp;:P).</p>
+<p>First off, a few&nbsp;packages:</p>
+<div class="highlight"><pre>aptitude install pelican python-typogrify ghp-import
+</pre></div>
+<p>The fist two are fairly straightforward while the latter is used to
+automate the management of the <tt class="docutils literal"><span class="pre">gh-pages</span></tt> branch required by
+<a class="reference external" href="https://help.github.com/categories/github-pages-basics/">github-pages</a>.</p>
+<p>After writing new posts or updating content test locally with something&nbsp;like</p>
+<div class="highlight"><pre>pelican content
+<span class="nb">cd</span> output <span class="o">&amp;&amp;</span> python -m pelican.server
+firefox localhost:8000
+</pre></div>
+<p>Finally, after committing and pushing the master branch, publish the
+output with the&nbsp;following:</p>
+<div class="highlight"><pre>pelican content -o output -s publishconf.py
+ghp-import output -m <span class="s2">&quot;new post&quot;</span>
+git push origin gh-pages
+git checkout master <span class="o">&amp;&amp;</span> rm -r output
+</pre></div>
+<p>For more information consult the <a class="reference external" href="https://help.github.com/categories/github-pages-basics/">github-pages</a> documentation, the
+<a class="reference external" href="http://docs.getpelican.com/en/stable/publish.html">pelican publishing</a> guide and the relevant <a class="reference external" href="http://docs.getpelican.com/en/3.6.3/tips.html#publishing-to-github">pelican tips</a>.</p>
+                </article>
+            </aside><!-- /#featured -->
+                <section id="content" class="body">
+                    <h1>Other articles</h1>
+                    <hr />
+                    <ol id="posts-list" class="hfeed">
+
+            <li><article class="hentry">
+                <header>
+                    <h1><a href="http://mpitid.github.io/blog/moving-to-pelican.html" rel="bookmark"
+                           title="Permalink to Moving to pelican">Moving to&nbsp;pelican</a></h1>
+                </header>
+
+                <div class="entry-content">
 <footer class="post-info">
         <abbr class="published" title="2016-03-28T21:00:00+01:00">
                 Published: Mon 28 March 2016
@@ -34,26 +83,13 @@
         </address>
 <p>In <a href="http://mpitid.github.io/blog/category/misc.html">misc</a>.</p>
 <p>tags: <a href="http://mpitid.github.io/blog/tag/markup.html">markup</a> <a href="http://mpitid.github.io/blog/tag/meta.html">meta</a> </p>
-</footer><!-- /.post-info --><p>It&#8217;s been a while since I&#8217;ve written anything for this site. In the
+</footer><!-- /.post-info -->                <p>It&#8217;s been a while since I&#8217;ve written anything for this site. In the
 meantime, <a class="reference external" href="https://jaspervdj.be/hakyll">Hakyll</a> has changed significantly enough to break my previous
 setup and I&#8217;ve been itching to try a different site&nbsp;generator.</p>
-<p>After a bit of research, I&#8217;ve decided to try out <a class="reference external" href="http://getpelican.com">Pelican</a>. It&#8217;s tailored
-to blog sites, has comprehensive documentation and is written in
-<a class="reference external" href="https://www.python.org">Python</a>, which means it will be easier for me to wrap my head around it
-if I have&nbsp;to.</p>
-<p>While I&#8217;ve been using <a class="reference external" href="https://daringfireball.net/projects/markdown">Markdown</a> heavily for the past few years, it has
-some serious limitations when it comes to writing extensive
-documentation in it (captured succinctly in a <a class="reference external" href="http://ericholscher.com/blog/2016/mar/15/dont-use-markdown-for-technical-docs/">blog by Eric
-Holscher</a>). Hence, I&#8217;m taking this opportunity to re-evaluate
-<a class="reference external" href="http://docutils.sourceforge.net/rst.html">reStructuredText</a>, and probably <a class="reference external" href="http://www.methods.co.nz/asciidoc">Asciidoc</a> at some later&nbsp;point.</p>
-<p>I have migrated most of the old content, and I&#8217;ll be updating the theme
-in the upcoming weeks as I add new&nbsp;entries.</p>
-                </article>
-            </aside><!-- /#featured -->
-                <section id="content" class="body">
-                    <h1>Other articles</h1>
-                    <hr />
-                    <ol id="posts-list" class="hfeed">
+<p>After a bit of research, I&#8217;ve decided to try out <a class="reference external" href="http://getpelican.com">Pelican</a>. It ...</p>
+                <a class="readmore" href="http://mpitid.github.io/blog/moving-to-pelican.html">read more</a>
+                </div><!-- /.entry-content -->
+            </article></li>
 
             <li><article class="hentry">
                 <header>
