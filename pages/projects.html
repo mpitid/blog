@@ -7,7 +7,7 @@
         <link href="http://mpitid.github.io/blog/feeds/all.atom.xml" type="application/atom+xml" rel="alternate" title="_ Atom Feed" />
 
         <!--[if IE]>
-            <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+            <script src="https://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
         <![endif]-->
 </head>
 
@@ -15,13 +15,10 @@
         <header id="banner" class="body">
                 <h1><a href="http://mpitid.github.io/blog/">_ </a></h1>
                 <nav><ul>
-    
-                        <li><a href="http://mpitid.github.io/blog/pages/about.html">About</a></li>
-    
-                        <li class="active"><a href="http://mpitid.github.io/blog/pages/projects.html">Projects</a></li>
+                    <li><a href="http://mpitid.github.io/blog/pages/about.html">About</a></li>
+                    <li class="active"><a href="http://mpitid.github.io/blog/pages/projects.html">Projects</a></li>
                     <li><a href="http://mpitid.github.io/blog/category/misc.html">misc</a></li>
-                </ul>
-                </nav>
+                </ul></nav>
         </header><!-- /#banner -->
 <section id="content" class="body">
     <h1 class="entry-title">Projects</h1>
@@ -41,6 +38,55 @@ analysis. Code and documentation is available on <a class="reference external" h
 <p>A highly experimental unfinished prototype of user defined guards for
 Erlang &#8212;utilising the analysis&#8217; results&#8212; can be found <a class="reference external" href="https://github.com/bjorng/otp/tree/user-guards">here</a>.</p>
 </div>
+<div class="section" id="kafka-tools">
+<h2>Kafka&nbsp;tools</h2>
+<p>A set of command line tools to communicate with Kafka instances. The
+main benefit in terms of the existing scripts in the Kafka distribution
+is a more <span class="caps">UNIX</span>-like behaviour which allows use in pipes. Supports <a class="reference external" href="https://github.com/mpitid/kafka-tools/tree/kafka7">Kafka
+7.x</a> and <a class="reference external" href="https://github.com/mpitid/kafka-tools/tree/kafka8">8.x</a> (therefore 9.x and 10.x through their common <span class="caps">API</span>).
+Besides allowing to write to a producer and read from a consumer, the
+Kafka 8 branch provides support for offset and topic management under a
+single executable and unified command line&nbsp;interface.</p>
+<p>The project was a quick hack so packaging is rough around the edges (jar
+or a all-in-one <span class="caps">RPM</span>), however I found it quite handy when trying to find
+missing data on production or just feeding mock data for dev and staging&nbsp;environments!</p>
+<p>Have a look at the <a class="reference external" href="https://github.com/mpitid/kafka-tools/blob/master/README.md"><span class="caps">README</span></a> for extensive usage&nbsp;instructions.</p>
+</div>
+<div class="section" id="scala-libraries-tools">
+<h2>Scala libraries <span class="amp">&amp;</span>&nbsp;tools</h2>
+<p>Bits and pieces of <a class="reference external" href="http://www.scala-lang.org">Scala</a> code that I have collected in the form of
+libraries or simple command line tools. <a class="reference external" href="https://github.com/mpitid/scala-util-backoff">Tiny utils</a> is mostly a bunch
+of implicits to allow working with Java&#8217;s atomic references, count down
+latches, scheduled executors and thread-locals in a more idiomatic way.
+<a class="reference external" href="https://github.com/mpitid/scala-util-tiny/">Back-off utils</a> is an implementation of a diverse set of back-off
+policies as immutable case classes, mostly inspired by <a class="reference external" href="http://brooker.co.za/blog/2015/03/21/backoff.html">Mark Brooker&#8217;s
+blog post</a> on the subject. These can come in real handy when writing
+<a class="reference external" href="http://www.scala-lang.org">Scala</a> <span class="caps">HTTP</span> clients for APIs and especially when crawling <a class="reference external" href="#social-api-tools">rate-limited
+ones</a>. It also includes a handy library for
+generating unbiased uniform longs within a specific interval
+(conspicuously missing from <a class="reference external" href="https://docs.oracle.com/javase/7/docs/api/java/util/Random.html">java.util.Random</a> in Java 7, but not from
+<a class="reference external" href="https://docs.oracle.com/javase/7/docs/api/java/util/concurrent/ThreadLocalRandom.html#nextLong(long,%20long)">java.util.concurrent.ThreadLocalRandom</a> which is where it&#8217;s borrowed&nbsp;from).</p>
+<p>In terms of tools, <a class="reference external" href="https://github.com/mpitid/nfst"><span class="caps">NFST</span></a> is a command line tool for working with
+<a class="reference external" href="http://blog.mikemccandless.com/2010/12/using-finite-state-transducers-in.html">Lucene&#8217;s Finite State Transducers</a>. For some context, I highly
+recommend reading Andrew Gallant&#8217;s write-up on <a class="reference external" href="http://blog.burntsushi.net/transducers/">implementing FSTs in
+Rust</a>. Another handy tool is <a class="reference external" href="https://github.com/mpitid/scully">scully</a>, a command line tool for
+reading from and writing to <a class="reference external" href="http://zeromq.org/">0mq sockets</a>, which comes with an
+<a class="reference external" href="https://github.com/mpitid/pako">equivalent in Python</a>, both handy if you are stuck in an environment
+where you cannot install packages. Finally, <a class="reference external" href="https://github.com/mpitid/jml"><span class="caps">JML</span></a> is an old prototype
+for a <span class="caps">JSON</span> mapping and transformation domain-specific language using
+parser&nbsp;combinators.</p>
+</div>
+<div class="section" id="social-api-tools">
+<h2>Social <span class="caps">API</span>&nbsp;tools</h2>
+<p>A set of <a class="reference external" href="https://github.com/mpitid/apiutils">command line tools</a> in <a class="reference external" href="https://www.python.org">Python</a> for working with <a class="reference external" href="https://developers.facebook.com/docs/graph-api/reference">Facebook&#8217;s
+Graph <span class="caps">API</span></a> and <a class="reference external" href="https://instagram.com/developer/endpoints/">Instagram&#8217;s <span class="caps">API</span></a>, these were invaluable in debugging
+production crawlers for those APIs or doing one-off bulk retrievals of
+content for simple analysis, the main benefit being the automatic
+handling of the different pagination parameters and support for
+different output formats (<span class="caps">JSON</span> or <span class="caps">YAML</span>). Examples of usage and simple
+analysis with command line tools like <a class="reference external" href="https://stedolan.github.io/jq/">jq</a>, <tt class="docutils literal">sort</tt> and <tt class="docutils literal">sed</tt> are
+provided in the <span class="caps">README</span> of each&nbsp;project.</p>
+</div>
 <div class="section" id="spacenet">
 <h2>Spacenet</h2>
 <p>Spacenet is a distributed programming game. It was originally conceived
@@ -50,6 +96,11 @@ two fellow members of the <a class="reference external" href="http://foss.ntua.g
 some of the Prolog parts. The game has been tested successfully on a
 small <span class="caps">LAN</span> with 10 players. Code, documentation and screencast demos are
 available at the <a class="reference external" href="http://foss.ntua.gr/spacenet">spacenet website</a>.</p>
+</div>
+<div class="section" id="scheme48">
+<h2>Scheme48</h2>
+<p>A very simple <a class="reference external" href="https://github.com/mpitid/scheme48">scheme interpreter</a> following the <a class="reference external" href="https://en.wikibooks.org/wiki/Write_Yourself_a_Scheme_in_48_Hours">Write Yourself a
+Scheme in 48 Hours</a> Haskell&nbsp;tutorial.</p>
 </div>
 <div class="section" id="labelme">
 <h2>Labelme</h2>
@@ -85,7 +136,7 @@ use it to extract hyperlinks that match certain patterns from webpages.
 The pattern can refer to the <span class="caps">URL</span> itself, the text inside the anchor or
 the <span class="caps">URL</span> of an <span class="caps">IMG</span> element inside the anchor. For example, to download
 all the <span class="caps">JPEG</span> images in a webpage, one could use the&nbsp;following:</p>
-<div class="highlight"><pre>wgrep <span class="s1">&#39;\.jpg$&#39;</span> http://some.website.com/ | xargs wget --content-disposition
+<div class="highlight"><pre>wgrep <span class="s1">&#39;\.jpg$&#39;</span> http://some.website.com/ <span class="p">|</span> xargs wget --content-disposition
 </pre></div>
 <p><a class="reference external" href="https://github.com/mpitid/scripts/blob/master/zget">zget</a> is another handy script which downloads a zip or rar archive and
 extracts it in one go, deleting the archive&nbsp;afterwards.</p>
@@ -103,7 +154,11 @@ extracts it in one go, deleting the archive&nbsp;afterwards.</p>
         </section><!-- /#extras -->
 
         <footer id="contentinfo" class="body">
-                <p>Powered by <a href="http://getpelican.com/">Pelican</a>. Theme <a href="https://github.com/blueicefield/pelican-blueidea/">blueidea</a>, inspired by the default theme.</p>
+                <address id="about" class="vcard body">
+                Proudly powered by <a href="http://getpelican.com/">Pelican</a>, which takes great advantage of <a href="http://python.org">Python</a>.
+                </address><!-- /#about -->
+
+                <p>The theme is by <a href="http://coding.smashingmagazine.com/2009/08/04/designing-a-html-5-layout-from-scratch/">Smashing Magazine</a>, thanks!</p>
         </footer><!-- /#contentinfo -->
 
 </body>

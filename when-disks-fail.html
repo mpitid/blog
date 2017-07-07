@@ -7,7 +7,7 @@
         <link href="http://mpitid.github.io/blog/feeds/all.atom.xml" type="application/atom+xml" rel="alternate" title="_ Atom Feed" />
 
         <!--[if IE]>
-            <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+            <script src="https://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
         <![endif]-->
 </head>
 
@@ -15,13 +15,10 @@
         <header id="banner" class="body">
                 <h1><a href="http://mpitid.github.io/blog/">_ </a></h1>
                 <nav><ul>
-    
-                        <li><a href="http://mpitid.github.io/blog/pages/about.html">About</a></li>
-    
-                        <li><a href="http://mpitid.github.io/blog/pages/projects.html">Projects</a></li>
+                    <li><a href="http://mpitid.github.io/blog/pages/about.html">About</a></li>
+                    <li><a href="http://mpitid.github.io/blog/pages/projects.html">Projects</a></li>
                     <li class="active"><a href="http://mpitid.github.io/blog/category/misc.html">misc</a></li>
-                </ul>
-                </nav>
+                </ul></nav>
         </header><!-- /#banner -->
 <section id="content" class="body">
   <article>
@@ -33,8 +30,15 @@
 
     <div class="entry-content">
 <footer class="post-info">
-        <span>Thu 21 July 2011</span>
-<span>| tags: <a href="http://mpitid.github.io/blog/tag/guide.html">guide</a></span>
+        <abbr class="published" title="2011-07-21T00:00:00+01:00">
+                Published: Thu 21 July 2011
+        </abbr>
+
+        <address class="vcard author">
+                By                         <a class="url fn" href="http://mpitid.github.io/blog/author/michaelp.html">michaelp</a>
+        </address>
+<p>In <a href="http://mpitid.github.io/blog/category/misc.html">misc</a>.</p>
+<p>tags: <a href="http://mpitid.github.io/blog/tag/guide.html">guide</a> </p>
 </footer><!-- /.post-info -->      <p>In the last year I&#8217;ve had to recover data from two failing disks as well
 as one accidental formating. Overall I was successful, thanks to a
 couple of excellent free software power tools: <a class="reference external" href="http://www.gnu.org/software/ddrescue/ddrescue.html">ddrescue</a> <a class="footnote-reference" href="#confused" id="id1">[1]</a>
@@ -130,7 +134,7 @@ are rescuing a whole disk image and want to check out a specific
 partition, you can use <a class="reference external" href="http://www.cgsecurity.org/wiki/TestDisk">testdisk</a>, or specify a byte offset when
 mounting. For example, the first partition usually starts after 512
 bytes <a class="footnote-reference" href="#mbr" id="id3">[3]</a>.</p>
-<div class="last"><div class="highlight"><pre>mount -o ro,loop,offset<span class="o">=</span>512 sdb.img /mnt
+<div class="last"><div class="highlight"><pre>mount -o ro,loop,offset<span class="o">=</span><span class="m">512</span> sdb.img /mnt
 </pre></div>
 </div></div>
 </div>
@@ -238,7 +242,11 @@ Monitor</a>, which provides information on modern <span class="caps">CPU</span> 
         </section><!-- /#extras -->
 
         <footer id="contentinfo" class="body">
-                <p>Powered by <a href="http://getpelican.com/">Pelican</a>. Theme <a href="https://github.com/blueicefield/pelican-blueidea/">blueidea</a>, inspired by the default theme.</p>
+                <address id="about" class="vcard body">
+                Proudly powered by <a href="http://getpelican.com/">Pelican</a>, which takes great advantage of <a href="http://python.org">Python</a>.
+                </address><!-- /#about -->
+
+                <p>The theme is by <a href="http://coding.smashingmagazine.com/2009/08/04/designing-a-html-5-layout-from-scratch/">Smashing Magazine</a>, thanks!</p>
         </footer><!-- /#contentinfo -->
 
 </body>

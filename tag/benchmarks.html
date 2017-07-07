@@ -7,7 +7,7 @@
         <link href="http://mpitid.github.io/blog/feeds/all.atom.xml" type="application/atom+xml" rel="alternate" title="_ Atom Feed" />
 
         <!--[if IE]>
-            <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+            <script src="https://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
         <![endif]-->
 </head>
 
@@ -15,21 +15,25 @@
         <header id="banner" class="body">
                 <h1><a href="http://mpitid.github.io/blog/">_ </a></h1>
                 <nav><ul>
-    
-                        <li><a href="http://mpitid.github.io/blog/pages/about.html">About</a></li>
-    
-                        <li><a href="http://mpitid.github.io/blog/pages/projects.html">Projects</a></li>
+                    <li><a href="http://mpitid.github.io/blog/pages/about.html">About</a></li>
+                    <li><a href="http://mpitid.github.io/blog/pages/projects.html">Projects</a></li>
                     <li><a href="http://mpitid.github.io/blog/category/misc.html">misc</a></li>
-                </ul>
-                </nav>
+                </ul></nav>
         </header><!-- /#banner -->
 
             <aside id="featured" class="body">
                 <article>
                     <h1 class="entry-title"><a href="http://mpitid.github.io/blog/benchmark-load-balancing.html">Benchmark Load&nbsp;Balancing</a></h1>
 <footer class="post-info">
-        <span>Wed 08 February 2012</span>
-<span>| tags: <a href="http://mpitid.github.io/blog/tag/scripts.html">scripts</a><a href="http://mpitid.github.io/blog/tag/benchmarks.html">benchmarks</a></span>
+        <abbr class="published" title="2012-02-08T00:00:00+00:00">
+                Published: Wed 08 February 2012
+        </abbr>
+
+        <address class="vcard author">
+                By                         <a class="url fn" href="http://mpitid.github.io/blog/author/michaelp.html">michaelp</a>
+        </address>
+<p>In <a href="http://mpitid.github.io/blog/category/misc.html">misc</a>.</p>
+<p>tags: <a href="http://mpitid.github.io/blog/tag/scripts.html">scripts</a> <a href="http://mpitid.github.io/blog/tag/benchmarks.html">benchmarks</a> </p>
 </footer><!-- /.post-info --><div class="section" id="the-problem">
 <h2>The&nbsp;Problem</h2>
 <p>I am always looking for ways to turn boring school assignments to fun
@@ -73,17 +77,17 @@ comes to separator handling &#8212;I couldn&#8217;t get the <span class="caps">H
 properly on&nbsp;newlines.</p>
 <dl class="docutils">
 <dt>distribute</dt>
-<dd><div class="first last"><div class="highlight"><pre><span class="c">#!/bin/zsh</span>
-<span class="c"># Distribute computation across different machines.</span>
+<dd><div class="first last"><div class="highlight"><pre><span class="ch">#!/bin/zsh</span>
+<span class="c1"># Distribute computation across different machines.</span>
 
-<span class="c"># Parse lines in the following format to retrieve hosts:</span>
-<span class="c"># &lt;span class=&#39;label label-success&#39;&gt;bazzini.inf.ed.ac.uk&lt;/span&gt;</span>
+<span class="c1"># Parse lines in the following format to retrieve hosts:</span>
+<span class="c1"># &lt;span class=&#39;label label-success&#39;&gt;bazzini.inf.ed.ac.uk&lt;/span&gt;</span>
 <span class="nv">HOSTS</span><span class="o">=(</span><span class="k">$(</span>wget -O - http://project.shearn89.com/available <span class="se">\</span>
-       | sed -rn <span class="s1">&#39;/label-success/ s/.*&gt;([^&lt;]+)&lt;.*/\1/p&#39;</span><span class="k">)</span><span class="o">)</span>
+       <span class="p">|</span> sed -rn <span class="s1">&#39;/label-success/ s/.*&gt;([^&lt;]+)&lt;.*/\1/p&#39;</span><span class="k">)</span><span class="o">)</span>
 <span class="nv">i</span><span class="o">=</span>1
-<span class="k">for </span>src in <span class="nv">$@</span>; <span class="k">do</span>
-<span class="k">    </span><span class="nv">host</span><span class="o">=</span><span class="k">${</span><span class="nv">HOSTS</span><span class="p">[</span><span class="k">$((</span> i++ <span class="k">))</span><span class="p">]</span><span class="k">}</span>
-    ssh -n <span class="nv">$host</span> <span class="s2">&quot;nohup ./runjob $src&quot;</span> &amp;
+<span class="k">for</span> src in <span class="nv">$@</span><span class="p">;</span> <span class="k">do</span>
+    <span class="nv">host</span><span class="o">=</span><span class="si">${</span><span class="nv">HOSTS</span><span class="p">[</span><span class="k">$((</span> i++ <span class="k">))</span><span class="p">]</span><span class="si">}</span>
+    ssh -n $host <span class="s2">&quot;nohup ./runjob </span>$<span class="s2">src&quot;</span> <span class="p">&amp;</span>
 <span class="k">done</span>
 </pre></div>
 </div></dd>
@@ -93,15 +97,15 @@ executes the benchmark, while logging some information like which
 benchmark is matched to which&nbsp;machine.</p>
 <dl class="docutils">
 <dt>runjob</dt>
-<dd><div class="first last"><div class="highlight"><pre><span class="c">#!/bin/bash</span>
+<dd><div class="first last"><div class="highlight"><pre><span class="ch">#!/bin/bash</span>
 
 <span class="nv">src</span><span class="o">=</span><span class="k">$(</span>basename <span class="nv">$1</span><span class="k">)</span>
-<span class="nb">cd </span>msc/copt1
-<span class="nv">joblog</span><span class="o">=</span><span class="s2">&quot;info.$src.$(hostname).log&quot;</span>
-date +<span class="s1">&#39;%F %T&#39;</span> &gt;&gt; <span class="nv">$joblog</span>
-cat /proc/cpuinfo  &gt;&gt; <span class="nv">$joblog</span>
-taskset -c 1 ./benchmark <span class="nv">$@</span>
-<span class="nb">echo</span> <span class="nv">$?</span> <span class="nv">$@</span> &gt;&gt; <span class="s2">&quot;$joblog&quot;</span>
+<span class="nb">cd</span> msc/copt1
+<span class="nv">joblog</span><span class="o">=</span><span class="s2">&quot;info.</span>$<span class="s2">src.</span><span class="k">$(</span>hostname<span class="k">)</span><span class="s2">.log&quot;</span>
+date +<span class="s1">&#39;%F %T&#39;</span> &gt;&gt; $joblog
+cat /proc/cpuinfo  &gt;&gt; $joblog
+taskset -c <span class="m">1</span> ./benchmark <span class="nv">$@</span>
+<span class="nb">echo</span> <span class="nv">$?</span> <span class="nv">$@</span> &gt;&gt; <span class="s2">&quot;</span>$<span class="s2">joblog&quot;</span>
 </pre></div>
 </div></dd>
 </dl>
@@ -111,45 +115,45 @@ iterations. After execution is complete, average runtime and standard
 deviation are calculated with a simple <a class="reference external" href="http://www.gnu.org/software/gawk/">awk</a> script, <tt class="docutils literal">stats.awk</tt>.</p>
 <dl class="docutils">
 <dt>benchmark</dt>
-<dd><div class="first last"><div class="highlight"><pre><span class="c">#!/bin/bash</span>
+<dd><div class="first last"><div class="highlight"><pre><span class="ch">#!/bin/bash</span>
 
-<span class="nv">SRC</span><span class="o">=</span><span class="s2">&quot;$1&quot;</span>
-<span class="nv">DST</span><span class="o">=</span><span class="s2">&quot;${2:-$(pwd)/out}&quot;</span>
-<span class="nv">FLAGS</span><span class="o">=</span><span class="s2">&quot;${3:-200-flags}&quot;</span>
-<span class="nv">TIMES</span><span class="o">=</span><span class="s2">&quot;${4:-12}&quot;</span>
+<span class="nv">SRC</span><span class="o">=</span><span class="s2">&quot;</span><span class="nv">$1</span><span class="s2">&quot;</span>
+<span class="nv">DST</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">2</span><span class="k">:-$(</span><span class="nb">pwd</span><span class="k">)</span><span class="p">/out</span><span class="si">}</span><span class="s2">&quot;</span>
+<span class="nv">FLAGS</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">3</span><span class="k">:-</span><span class="nv">200</span><span class="p">-flags</span><span class="si">}</span><span class="s2">&quot;</span>
+<span class="nv">TIMES</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">4</span><span class="k">:-</span><span class="nv">12</span><span class="si">}</span><span class="s2">&quot;</span>
 
-die<span class="o">()</span> <span class="o">{</span> <span class="nb">echo</span> <span class="nv">$@</span>; <span class="nb">exit </span>1; <span class="o">}</span>
+die<span class="o">()</span> <span class="o">{</span> <span class="nb">echo</span> <span class="nv">$@</span><span class="p">;</span> <span class="nb">exit</span> 1<span class="p">;</span> <span class="o">}</span>
 
-<span class="o">[[</span> -z <span class="s2">&quot;$SRC&quot;</span> <span class="o">]]</span> <span class="o">&amp;&amp;</span> die <span class="s2">&quot;usage: $0 src [dst=$DST] [flags=$FLAGS] [times=$TIMES]&quot;</span>
+<span class="o">[[</span> -z <span class="s2">&quot;</span>$<span class="s2">SRC&quot;</span> <span class="o">]]</span> <span class="o">&amp;&amp;</span> die <span class="s2">&quot;usage: </span><span class="nv">$0</span><span class="s2"> src [dst=</span><span class="nv">$D</span><span class="s2">ST] [flags=</span><span class="nv">$F</span><span class="s2">LAGS] [times=</span>$<span class="s2">TIMES]&quot;</span>
 
-<span class="nv">name</span><span class="o">=</span><span class="s2">&quot;$(basename $SRC)&quot;</span>
-<span class="nv">dst</span><span class="o">=</span><span class="s2">&quot;$DST/$name&quot;</span>
-mkdir -p <span class="s2">&quot;$dst&quot;</span> <span class="o">||</span> die <span class="s2">&quot;Failed to create output directory $dst&quot;</span>
+<span class="nv">name</span><span class="o">=</span><span class="s2">&quot;</span><span class="k">$(</span>basename $SRC<span class="k">)</span><span class="s2">&quot;</span>
+<span class="nv">dst</span><span class="o">=</span><span class="s2">&quot;</span><span class="nv">$D</span><span class="s2">ST/</span>$<span class="s2">name&quot;</span>
+mkdir -p <span class="s2">&quot;</span><span class="nv">$d</span><span class="s2">st&quot;</span> <span class="o">||</span> die <span class="s2">&quot;Failed to create output directory </span><span class="nv">$d</span><span class="s2">st&quot;</span>
 
-<span class="nv">log</span><span class="o">=</span><span class="s2">&quot;$dst/run.log&quot;</span>
-<span class="nv">buildlog</span><span class="o">=</span><span class="s2">&quot;$dst/build.log&quot;</span>
+<span class="nv">log</span><span class="o">=</span><span class="s2">&quot;</span><span class="nv">$d</span><span class="s2">st/run.log&quot;</span>
+<span class="nv">buildlog</span><span class="o">=</span><span class="s2">&quot;</span><span class="nv">$d</span><span class="s2">st/build.log&quot;</span>
 
 <span class="nv">f</span><span class="o">=</span>0
-<span class="k">while </span><span class="nb">read </span>flags; <span class="k">do</span>
+<span class="k">while</span> <span class="nb">read</span> flags<span class="p">;</span> <span class="k">do</span>
     <span class="o">((</span> f++ <span class="o">))</span>
-    <span class="nv">file</span><span class="o">=</span><span class="s2">&quot;$(printf $dst/%03d.times $f)&quot;</span>
-    <span class="nv">run</span><span class="o">=</span><span class="k">$(</span><span class="nb">printf</span> <span class="s2">&quot;$(basename $SRC) %03d&quot;</span> <span class="nv">$f</span><span class="k">)</span>
-    <span class="nb">echo</span> <span class="s2">&quot;$(date +&#39;%F %T&#39;) $run $flags&quot;</span> | tee -a <span class="s2">&quot;$log&quot;</span> <span class="s2">&quot;$buildlog&quot;</span>
+    <span class="nv">file</span><span class="o">=</span><span class="s2">&quot;</span><span class="k">$(</span><span class="nb">printf</span> <span class="nv">$d</span>st/%03d.times <span class="nv">$f</span><span class="k">)</span><span class="s2">&quot;</span>
+    <span class="nv">run</span><span class="o">=</span><span class="k">$(</span><span class="nb">printf</span> <span class="s2">&quot;</span><span class="k">$(</span>basename $SRC<span class="k">)</span><span class="s2"> %03d&quot;</span> <span class="nv">$f</span><span class="k">)</span>
+    <span class="nb">echo</span> <span class="s2">&quot;</span><span class="k">$(</span>date +<span class="s1">&#39;%F %T&#39;</span><span class="k">)</span><span class="s2"> </span>$<span class="s2">run </span><span class="nv">$f</span><span class="s2">lags&quot;</span> <span class="p">|</span> tee -a <span class="s2">&quot;</span>$<span class="s2">log&quot;</span> <span class="s2">&quot;</span><span class="nv">$b</span><span class="s2">uildlog&quot;</span>
 
-    make -s -C <span class="s2">&quot;$SRC/src&quot;</span> <span class="nv">CFLAGS</span><span class="o">=</span><span class="s2">&quot;$flags&quot;</span> 1&gt;/dev/null 2&gt;&gt;<span class="nv">$buildlog</span> <span class="se">\</span>
-      <span class="o">||</span> die <span class="s2">&quot;Failed to build $SRC&quot;</span>
+    make -s -C <span class="s2">&quot;</span>$<span class="s2">SRC/src&quot;</span> <span class="nv">CFLAGS</span><span class="o">=</span><span class="s2">&quot;</span><span class="nv">$f</span><span class="s2">lags&quot;</span> 1&gt;/dev/null 2&gt;&gt;<span class="nv">$b</span>uildlog <span class="se">\</span>
+      <span class="o">||</span> die <span class="s2">&quot;Failed to build </span>$<span class="s2">SRC&quot;</span>
 
-    <span class="nb">pushd</span> <span class="s2">&quot;$SRC&quot;</span>
-    <span class="k">for </span>i in  <span class="k">$(</span>seq <span class="nv">$TIMES</span><span class="k">)</span>; <span class="k">do</span>
-        /usr/bin/time --output<span class="o">=</span><span class="s2">&quot;$file&quot;</span> --append <span class="se">\</span>
+    <span class="nb">pushd</span> <span class="s2">&quot;</span>$<span class="s2">SRC&quot;</span>
+    <span class="k">for</span> i in  <span class="k">$(</span>seq $TIMES<span class="k">)</span><span class="p">;</span> <span class="k">do</span>
+        /usr/bin/time --output<span class="o">=</span><span class="s2">&quot;</span><span class="nv">$f</span><span class="s2">ile&quot;</span> --append <span class="se">\</span>
                       --format<span class="o">=</span><span class="s1">&#39;r %e k %S u %U csi %c csv %w&#39;</span> <span class="se">\</span>
-                      ./run.sh 1&gt;/dev/null 2&gt;&gt;<span class="nv">$log</span>
+                      ./run.sh 1&gt;/dev/null 2&gt;&gt;$log
     <span class="k">done</span>
-<span class="k">    </span><span class="nb">popd</span>
+    <span class="nb">popd</span>
 
-<span class="nb">    echo</span> -e <span class="s2">&quot;$name\n$flags\n$(./stats.awk $file)&quot;</span> <span class="se">\</span>
-       | tee -a <span class="s2">&quot;$dst/results.txt&quot;</span> | tail -n 1
-<span class="k">done</span> &lt; <span class="nv">$FLAGS</span>
+    <span class="nb">echo</span> -e <span class="s2">&quot;</span>$<span class="s2">name\n</span><span class="nv">$f</span><span class="s2">lags\n</span><span class="k">$(</span>./stats.awk <span class="nv">$f</span>ile<span class="k">)</span><span class="s2">&quot;</span> <span class="se">\</span>
+       <span class="p">|</span> tee -a <span class="s2">&quot;</span><span class="nv">$d</span><span class="s2">st/results.txt&quot;</span> <span class="p">|</span> tail -n 1
+<span class="k">done</span> &lt; <span class="nv">$F</span>LAGS
 </pre></div>
 </div></dd>
 <dt>stats.awk</dt>
@@ -163,7 +167,7 @@ mkdir -p <span class="s2">&quot;$dst&quot;</span> <span class="o">||</span> die 
     <span class="kr">printf</span><span class="p">(</span><span class="s2">&quot;%d &quot;</span><span class="p">,</span> <span class="nx">cpu</span><span class="p">)</span>
 <span class="p">}</span>
 
-<span class="nx">END</span> <span class="p">{</span>
+<span class="nb">END</span> <span class="p">{</span>
     <span class="c1"># Print a line with average runtime and standard deviation.</span>
     <span class="nx">avg</span> <span class="o">=</span> <span class="nx">sum</span> <span class="o">/</span> <span class="nb">NR</span>
     <span class="nx">var</span> <span class="o">=</span> <span class="nx">ssq</span> <span class="o">/</span> <span class="nb">NR</span> <span class="o">-</span> <span class="nx">avg</span> <span class="o">*</span> <span class="nx">avg</span>
@@ -186,20 +190,20 @@ no load &#8212;ideally such information should be provided in the original
 listing though. For example, the following script generates such a&nbsp;list:</p>
 <dl class="docutils">
 <dt>machines</dt>
-<dd><div class="first last"><div class="highlight"><pre><span class="c">#!/bin/bash</span>
+<dd><div class="first last"><div class="highlight"><pre><span class="ch">#!/bin/bash</span>
 
 stathosts<span class="o">()</span> <span class="o">{</span>
-    <span class="k">while </span><span class="nb">read </span>host; <span class="k">do</span>
-        <span class="o">[[</span> <span class="s2">&quot;$host&quot;</span> <span class="o">=</span> <span class="s2">&quot;Available&quot;</span> <span class="o">]]</span> <span class="o">&amp;&amp;</span> <span class="k">continue</span>
-<span class="k">        </span><span class="nb">echo</span> <span class="nv">$host</span>
-        ssh -nT <span class="nv">$host</span> <span class="s1">&#39;fgrep name /proc/cpuinfo; uptime; exit&#39;</span>
+    <span class="k">while</span> <span class="nb">read</span> host<span class="p">;</span> <span class="k">do</span>
+        <span class="o">[[</span> <span class="s2">&quot;</span>$<span class="s2">host&quot;</span> <span class="o">=</span> <span class="s2">&quot;Available&quot;</span> <span class="o">]]</span> <span class="o">&amp;&amp;</span> <span class="k">continue</span>
+        <span class="nb">echo</span> $host
+        ssh -nT $host <span class="s1">&#39;fgrep name /proc/cpuinfo; uptime; exit&#39;</span>
         <span class="nb">echo</span>
-<span class="nb">    </span><span class="k">done</span>
+    <span class="k">done</span>
 <span class="o">}</span>
 
-wget -O - http://project.shearn89.com/available |<span class="se">\</span>
-sed -rn <span class="s1">&#39;/label-success/ s/.*&gt;([^&lt;]+)&lt;.*/\1/p&#39;</span>  |<span class="se">\</span>
-stathosts &gt; <span class="k">${</span><span class="nv">1</span><span class="k">:-</span><span class="nv">host</span><span class="p">.stats</span><span class="k">}</span>
+wget -O - http://project.shearn89.com/available <span class="p">|</span><span class="se">\</span>
+sed -rn <span class="s1">&#39;/label-success/ s/.*&gt;([^&lt;]+)&lt;.*/\1/p&#39;</span>  <span class="p">|</span><span class="se">\</span>
+stathosts &gt; <span class="si">${</span><span class="nv">1</span><span class="k">:-</span><span class="nv">host</span><span class="p">.stats</span><span class="si">}</span>
 </pre></div>
 </div></dd>
 </dl>
@@ -208,15 +212,15 @@ heuristic. The benchmarks could be also ranked slowest to fastest with a
 script like the&nbsp;following:</p>
 <dl class="docutils">
 <dt>rank</dt>
-<dd><div class="first last"><div class="highlight"><pre><span class="c">#!/bin/bash</span>
+<dd><div class="first last"><div class="highlight"><pre><span class="ch">#!/bin/bash</span>
 
-<span class="k">for </span>src in <span class="nv">$@</span>; <span class="k">do</span>
-<span class="k">    </span>make -C <span class="nv">$src</span>/src &amp;&gt;/dev/null
-    <span class="nb">pushd</span> <span class="nv">$src</span> &amp;&gt;/dev/null
-    /usr/bin/time --format<span class="o">=</span><span class="s1">&#39;%e&#39;</span> --output<span class="o">=</span>&gt;<span class="o">(</span><span class="nb">read </span>t; <span class="nb">echo</span> <span class="nv">$t</span> <span class="k">$(</span>basename <span class="nv">$src</span><span class="k">)</span><span class="o">)</span> <span class="se">\</span>
-                  taskset -c 0 ./run.sh &amp;&gt;/dev/null
-    <span class="nb">popd</span> &amp;&gt;/dev/null
-<span class="k">done</span> | sort -rgk 1 | cut -d<span class="s1">&#39; &#39;</span> -f 2
+<span class="k">for</span> src in <span class="nv">$@</span><span class="p">;</span> <span class="k">do</span>
+    make -C $src/src <span class="p">&amp;</span>&gt;/dev/null
+    <span class="nb">pushd</span> $src <span class="p">&amp;</span>&gt;/dev/null
+    /usr/bin/time --format<span class="o">=</span><span class="s1">&#39;%e&#39;</span> --output<span class="o">=</span>&gt;<span class="o">(</span><span class="nb">read</span> t<span class="p">;</span> <span class="nb">echo</span> $t <span class="k">$(</span>basename $src<span class="k">)</span><span class="o">)</span> <span class="se">\</span>
+                  taskset -c <span class="m">0</span> ./run.sh <span class="p">&amp;</span>&gt;/dev/null
+    <span class="nb">popd</span> <span class="p">&amp;</span>&gt;/dev/null
+<span class="k">done</span> <span class="p">|</span> sort -rgk <span class="m">1</span> <span class="p">|</span> cut -d<span class="s1">&#39; &#39;</span> -f 2
 </pre></div>
 </div></dd>
 </dl>
@@ -233,38 +237,38 @@ To do that I just set all non-i3 multipliers to 0 in the following
 <tt class="docutils literal">rankhost</tt> script.</p>
 <dl class="docutils">
 <dt>rankhosts</dt>
-<dd><div class="first last"><div class="highlight"><pre><span class="c">#!/bin/bash</span>
+<dd><div class="first last"><div class="highlight"><pre><span class="ch">#!/bin/bash</span>
 
-<span class="c"># Set the multipliers depending on the processor model.</span>
-<span class="nv">FACTOR_I3</span><span class="o">=</span>1.8 <span class="c"># Core i3</span>
-<span class="nv">FACTOR_CD</span><span class="o">=</span>1.0 <span class="c"># Core 2 Duo</span>
-<span class="nv">FACTOR_C2</span><span class="o">=</span>0.8 <span class="c"># Core 2</span>
+<span class="c1"># Set the multipliers depending on the processor model.</span>
+<span class="nv">FACTOR_I3</span><span class="o">=</span>1.8 <span class="c1"># Core i3</span>
+<span class="nv">FACTOR_CD</span><span class="o">=</span>1.0 <span class="c1"># Core 2 Duo</span>
+<span class="nv">FACTOR_C2</span><span class="o">=</span>0.8 <span class="c1"># Core 2</span>
 
 cpu_core<span class="o">()</span> <span class="o">{</span>
     fgrep -c name /proc/cpuinfo
 <span class="o">}</span>
 
 cpu_freq<span class="o">()</span> <span class="o">{</span>
-    <span class="nv">name</span><span class="o">=</span><span class="k">$(</span>fgrep name /proc/cpuinfo | sed 1q<span class="k">)</span>
-    <span class="nv">freq</span><span class="o">=</span><span class="k">$(</span><span class="nb">echo</span> <span class="nv">$name</span> | sed -r <span class="s1">&#39;s/.*@[ \t]+([0-9.]+)GHz$/\1/&#39;</span><span class="k">)</span>
-    <span class="k">case</span> <span class="nv">$name</span> in
+    <span class="nv">name</span><span class="o">=</span><span class="k">$(</span>fgrep name /proc/cpuinfo <span class="p">|</span> sed 1q<span class="k">)</span>
+    <span class="nv">freq</span><span class="o">=</span><span class="k">$(</span><span class="nb">echo</span> $name <span class="p">|</span> sed -r <span class="s1">&#39;s/.*@[ \t]+([0-9.]+)GHz$/\1/&#39;</span><span class="k">)</span>
+    <span class="k">case</span> $name in
         *i3-*<span class="o">)</span>
-            <span class="nv">factor</span><span class="o">=</span><span class="nv">$FACTOR_I3</span> ;;
+            <span class="nv">factor</span><span class="o">=</span><span class="nv">$FAC</span>TOR_I3 <span class="p">;;</span>
         *Duo*<span class="o">)</span>
-            <span class="nv">factor</span><span class="o">=</span><span class="nv">$FACTOR_CD</span> ;;
+            <span class="nv">factor</span><span class="o">=</span><span class="nv">$FAC</span>TOR_CD <span class="p">;;</span>
         *<span class="o">)</span>
-            <span class="nv">factor</span><span class="o">=</span><span class="nv">$FACTOR_C2</span> ;;
+            <span class="nv">factor</span><span class="o">=</span><span class="nv">$FAC</span>TOR_C2 <span class="p">;;</span>
     <span class="k">esac</span>
-<span class="k">    </span><span class="nb">echo</span> <span class="s2">&quot;( $freq * $factor )&quot;</span>
+    <span class="nb">echo</span> <span class="s2">&quot;( </span><span class="nv">$f</span><span class="s2">req * </span><span class="nv">$fac</span><span class="s2">tor )&quot;</span>
 <span class="o">}</span>
 
 sys_load<span class="o">()</span> <span class="o">{</span>
     <span class="nv">cores</span><span class="o">=</span><span class="k">$(</span>cpu_core<span class="k">)</span>
-    <span class="nv">loads</span><span class="o">=</span><span class="k">$(</span>uptime | sed <span class="s1">&#39;s/.*load average://; s/,/ +/g&#39;</span><span class="k">)</span>
-    <span class="nb">echo</span> <span class="s2">&quot;( ($loads) / (3 * $cores) )&quot;</span>
+    <span class="nv">loads</span><span class="o">=</span><span class="k">$(</span>uptime <span class="p">|</span> sed <span class="s1">&#39;s/.*load average://; s/,/ +/g&#39;</span><span class="k">)</span>
+    <span class="nb">echo</span> <span class="s2">&quot;( (</span>$<span class="s2">loads) / (3 * </span><span class="nv">$c</span><span class="s2">ores) )&quot;</span>
 <span class="o">}</span>
 
-<span class="nb">echo</span> <span class="s2">&quot;scale=4; $(cpu_freq) /  (10 * (0.1 + $(sys_load)))&quot;</span> | bc
+<span class="nb">echo</span> <span class="s2">&quot;scale=4; </span><span class="k">$(</span>cpu_freq<span class="k">)</span><span class="s2"> /  (10 * (0.1 + </span><span class="k">$(</span>sys_load<span class="k">)</span><span class="s2">))&quot;</span> <span class="p">|</span> bc
 </pre></div>
 </div></dd>
 </dl>
@@ -272,44 +276,44 @@ sys_load<span class="o">()</span> <span class="o">{</span>
 run the functions from the shell&#8212; and modified the distribution script&nbsp;accordingly.</p>
 <dl class="docutils">
 <dt>functions</dt>
-<dd><div class="first last"><div class="highlight"><pre><span class="c">#!/bin/bash</span>
+<dd><div class="first last"><div class="highlight"><pre><span class="ch">#!/bin/bash</span>
 
 rank_spec<span class="o">()</span> <span class="o">{</span>
-  <span class="k">for </span>src in <span class="nv">$@</span>; <span class="k">do</span>
-<span class="k">    </span>make -C <span class="nv">$src</span>/src &amp;&gt;/dev/null
-    <span class="nb">pushd</span> <span class="nv">$src</span> &amp;&gt;/dev/null
-    /usr/bin/time --format<span class="o">=</span><span class="s1">&#39;%e&#39;</span> --output<span class="o">=</span>&gt;<span class="o">(</span><span class="nb">read </span>t; <span class="nb">echo</span> <span class="nv">$t</span> <span class="k">$(</span>basename <span class="nv">$src</span><span class="k">)</span><span class="o">)</span> <span class="se">\</span>
-                  taskset -c 0 ./run.sh &amp;&gt;/dev/null
-    <span class="nb">popd</span> &amp;&gt;/dev/null
-  <span class="k">done</span> | sort -rgk 1 | cut -d<span class="s1">&#39; &#39;</span> -f 2
+  <span class="k">for</span> src in <span class="nv">$@</span><span class="p">;</span> <span class="k">do</span>
+    make -C $src/src <span class="p">&amp;</span>&gt;/dev/null
+    <span class="nb">pushd</span> $src <span class="p">&amp;</span>&gt;/dev/null
+    /usr/bin/time --format<span class="o">=</span><span class="s1">&#39;%e&#39;</span> --output<span class="o">=</span>&gt;<span class="o">(</span><span class="nb">read</span> t<span class="p">;</span> <span class="nb">echo</span> $t <span class="k">$(</span>basename $src<span class="k">)</span><span class="o">)</span> <span class="se">\</span>
+                  taskset -c <span class="m">0</span> ./run.sh <span class="p">&amp;</span>&gt;/dev/null
+    <span class="nb">popd</span> <span class="p">&amp;</span>&gt;/dev/null
+  <span class="k">done</span> <span class="p">|</span> sort -rgk <span class="m">1</span> <span class="p">|</span> cut -d<span class="s1">&#39; &#39;</span> -f 2
 <span class="o">}</span>
 
 list_hosts<span class="o">()</span> <span class="o">{</span>
   wget -O - http://project.shearn89.com/available <span class="se">\</span>
-  | sed -rn <span class="s1">&#39;/Available/n; /label-success/ s/.*&gt;([^&lt;]+)&lt;.*/\1/p&#39;</span>
+  <span class="p">|</span> sed -rn <span class="s1">&#39;/Available/n; /label-success/ s/.*&gt;([^&lt;]+)&lt;.*/\1/p&#39;</span>
 <span class="o">}</span>
 
 rank_hosts<span class="o">()</span> <span class="o">{</span>
-  list_hosts | <span class="k">while </span><span class="nb">read </span>host; <span class="k">do</span>
-<span class="k">    </span><span class="nb">echo</span> <span class="k">$(</span>ssh -nT <span class="nv">$host</span> <span class="s1">&#39;~/rankhost; exit&#39;</span><span class="k">)</span> <span class="nv">$host</span>
-  <span class="k">done</span> | sed <span class="s1">&#39;/^[^1-9]/d&#39;</span> | sort -rgk 1 | cut -d<span class="s1">&#39; &#39;</span> -f 2
+  list_hosts <span class="p">|</span> <span class="k">while</span> <span class="nb">read</span> host<span class="p">;</span> <span class="k">do</span>
+    <span class="nb">echo</span> <span class="k">$(</span>ssh -nT $host <span class="s1">&#39;~/rankhost; exit&#39;</span><span class="k">)</span> $host
+  <span class="k">done</span> <span class="p">|</span> sed <span class="s1">&#39;/^[^1-9]/d&#39;</span> <span class="p">|</span> sort -rgk <span class="m">1</span> <span class="p">|</span> cut -d<span class="s1">&#39; &#39;</span> -f 2
 <span class="o">}</span>
 
 cached_hosts<span class="o">()</span> <span class="o">{</span>
-  <span class="nb">local </span><span class="nv">h</span><span class="o">=</span>hosts.cache
-  <span class="o">[[</span> -e <span class="nv">$h</span> <span class="o">]]</span> <span class="o">&amp;&amp;</span> cat <span class="nv">$h</span> <span class="o">||</span> <span class="o">{</span> rank_hosts | tee <span class="nv">$h</span>; <span class="o">}</span>
+  <span class="nb">local</span> <span class="nv">h</span><span class="o">=</span>hosts.cache
+  <span class="o">[[</span> -e $h <span class="o">]]</span> <span class="o">&amp;&amp;</span> cat $h <span class="o">||</span> <span class="o">{</span> rank_hosts <span class="p">|</span> tee $h<span class="p">;</span> <span class="o">}</span>
 <span class="o">}</span>
 </pre></div>
 </div></dd>
 <dt>distribute-new</dt>
-<dd><div class="first last"><div class="highlight"><pre><span class="c">#!/bin/bash</span>
+<dd><div class="first last"><div class="highlight"><pre><span class="ch">#!/bin/bash</span>
 
 <span class="nb">source</span> <span class="k">$(</span>dirname <span class="nv">$0</span><span class="k">)</span>/functions
 
 <span class="nv">HOSTS</span><span class="o">=(</span><span class="k">$(</span>cached_hosts<span class="k">)</span><span class="o">)</span>
-<span class="k">for </span>src in <span class="nv">$@</span>; <span class="k">do</span>
-<span class="k">  </span><span class="nv">host</span><span class="o">=</span><span class="k">${</span><span class="nv">HOSTS</span><span class="p">[</span><span class="k">$((</span> i++ <span class="k">))</span><span class="p">]</span><span class="k">}</span>
-  ssh -n <span class="nv">$host</span> <span class="s2">&quot;nohup ~/runjob $src 200-flags; exit&quot;</span> &amp;
+<span class="k">for</span> src in <span class="nv">$@</span><span class="p">;</span> <span class="k">do</span>
+  <span class="nv">host</span><span class="o">=</span><span class="si">${</span><span class="nv">HOSTS</span><span class="p">[</span><span class="k">$((</span> i++ <span class="k">))</span><span class="p">]</span><span class="si">}</span>
+  ssh -n $host <span class="s2">&quot;nohup ~/runjob </span>$<span class="s2">src 200-flags; exit&quot;</span> <span class="p">&amp;</span>
 <span class="k">done</span>
 </pre></div>
 </div></dd>
@@ -319,38 +323,33 @@ latency I further modified the <cite>runjob</cite> script to execute the benchma
 out of a <span class="caps">RAM</span> filesystem, under <cite>/dev/shm/</cite>.</p>
 <dl class="docutils">
 <dt>runjob-new</dt>
-<dd><div class="first last"><div class="highlight"><pre><span class="c">#!/bin/bash</span>
+<dd><div class="first last"><div class="highlight"><pre><span class="ch">#!/bin/bash</span>
 
 <span class="nv">dst</span><span class="o">=</span>/dev/shm/mike
-<span class="nv">results</span><span class="o">=</span><span class="nv">$dst</span>/results
-mkdir -p <span class="nv">$results</span>
+<span class="nv">results</span><span class="o">=</span><span class="nv">$d</span>st/results
+mkdir -p $results
 
 <span class="nv">src</span><span class="o">=</span><span class="nv">$1</span>
 <span class="nv">flags</span><span class="o">=</span><span class="nv">$2</span>
 
 <span class="nb">cd</span> ~/msc/copt1
-cp -r <span class="nv">$src</span> <span class="nv">$flags</span> <span class="nv">$dst</span>
-<span class="nv">src</span><span class="o">=</span><span class="k">$(</span>basename <span class="nv">$src</span><span class="k">)</span>
-<span class="nv">flags</span><span class="o">=</span><span class="nv">$dst</span>/<span class="k">$(</span>basename <span class="nv">$flags</span><span class="k">)</span>
-<span class="nv">log</span><span class="o">=</span><span class="s2">&quot;results/info.$src.$(hostname)&quot;</span>
-<span class="o">{</span> date +<span class="s1">&#39;%F %T&#39;</span>;
-  cat /proc/cpuinfo;
-  free -m; <span class="o">}</span> &gt; <span class="nv">$log</span>
-taskset -c 1 ./src/benchmark <span class="nv">$dst</span>/<span class="nv">$src</span> <span class="nv">$results</span> <span class="nv">$flags</span> 15
-<span class="nb">echo</span> <span class="nv">$?</span> <span class="nv">$@</span> &gt;&gt; <span class="nv">$log</span>
-cp -r <span class="nv">$results</span>/* results <span class="o">&amp;&amp;</span> rm -rf <span class="nv">$dst</span> <span class="o">||</span> <span class="nb">echo</span> <span class="s2">&quot;CLEAN UP FAILED&quot;</span>
+cp -r $src <span class="nv">$f</span>lags <span class="nv">$d</span>st
+<span class="nv">src</span><span class="o">=</span><span class="k">$(</span>basename $src<span class="k">)</span>
+<span class="nv">flags</span><span class="o">=</span><span class="nv">$d</span>st/<span class="k">$(</span>basename <span class="nv">$f</span>lags<span class="k">)</span>
+<span class="nv">log</span><span class="o">=</span><span class="s2">&quot;results/info.</span>$<span class="s2">src.</span><span class="k">$(</span>hostname<span class="k">)</span><span class="s2">&quot;</span>
+<span class="o">{</span> date +<span class="s1">&#39;%F %T&#39;</span><span class="p">;</span>
+  cat /proc/cpuinfo<span class="p">;</span>
+  free -m<span class="p">;</span> <span class="o">}</span> &gt; $log
+taskset -c <span class="m">1</span> ./src/benchmark <span class="nv">$d</span>st/$src $results <span class="nv">$f</span>lags 15
+<span class="nb">echo</span> <span class="nv">$?</span> <span class="nv">$@</span> &gt;&gt; $log
+cp -r $results/* results <span class="o">&amp;&amp;</span> rm -rf <span class="nv">$d</span>st <span class="o">||</span> <span class="nb">echo</span> <span class="s2">&quot;CLEAN UP FAILED&quot;</span>
 </pre></div>
 </div></dd>
 </dl>
 </div>
 </div>
                 </article>
-<p class="paginator">
-    Page 1 / 1
-</p>
             </aside><!-- /#featured -->
-            </ol><!-- /#posts-list -->
-            </section><!-- /#content -->
         <section id="extras" class="body">
                 <div class="social">
                         <h2>social</h2>
@@ -362,7 +361,11 @@ cp -r <span class="nv">$results</span>/* results <span class="o">&amp;&amp;</spa
         </section><!-- /#extras -->
 
         <footer id="contentinfo" class="body">
-                <p>Powered by <a href="http://getpelican.com/">Pelican</a>. Theme <a href="https://github.com/blueicefield/pelican-blueidea/">blueidea</a>, inspired by the default theme.</p>
+                <address id="about" class="vcard body">
+                Proudly powered by <a href="http://getpelican.com/">Pelican</a>, which takes great advantage of <a href="http://python.org">Python</a>.
+                </address><!-- /#about -->
+
+                <p>The theme is by <a href="http://coding.smashingmagazine.com/2009/08/04/designing-a-html-5-layout-from-scratch/">Smashing Magazine</a>, thanks!</p>
         </footer><!-- /#contentinfo -->
 
 </body>
