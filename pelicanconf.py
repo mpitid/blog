@@ -26,4 +26,5 @@ DEFAULT_PAGINATION = 10
 
 STATIC_PATHS = ['images', 'files']
 
+# Requires `python-typogrify` to be installed
 TYPOGRIFY = True
