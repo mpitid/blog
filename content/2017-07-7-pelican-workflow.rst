@@ -28,16 +28,20 @@ like
   cd output && python -m pelican.server 
   firefox localhost:8000
 
-Finally, after committing and pushing the master branch, publish the
-output with the following:
+After committing and pushing the master branch, publish the output with
+the following:
 
 .. code-block:: shell
 
   pelican content -o output -s publishconf.py
   ghp-import output -m "new post"
-  git push origin gh-pages
-  git checkout master && rm -r output
 
+Do a final check and if everything checks out, push:
+
+.. code-block:: shell
+
+  git checkout gh-pages && git push origin gh-pages
+  git checkout master && rm -r output
 
 For more information consult the `github-pages`_ documentation, the
 `pelican publishing`_ guide and the relevant `pelican tips`_.
