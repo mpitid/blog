@@ -87,7 +87,7 @@ Viewstamped Replication, Paxos, Zab and Raft in the form of paper
 summaries. Studying at least one of those designs in more detail is
 highly recommended; Raft is probably the easiest one and also `widely
 implemented`_. A useful --and often entertaining-- companion resource in
-this area is `Kyle Kingsbury's posts`_ on distributed systems, often
+this area is `Kyle Kingsbury's blog`_ on distributed systems, often
 elaborating on how many of them fail to provide their touted guarantees
 in practice.
 
@@ -157,8 +157,8 @@ plethora of websites and blogs in the wider blockchain space.
 
 .. Links
 
-.. _The quest for a scalable blockchain fabric\: Proof-of-work vs. BFT replication: http://vukolic.com/iNetSec_2015.pdf
-.. _Rethinking permissioned blockchains: http://www.vukolic.com/rethinking-permissioned-blockchains-BCC2017.pdf
+.. _The quest for a scalable blockchain fabric\: Proof-of-work vs. BFT replication: https://vukolic.github.io/iNetSec_2015.pdf
+.. _Rethinking permissioned blockchains: https://vukolic.github.io/rethinking-permissioned-blockchains-BCC2017.pdf
 .. _State Machine Replication for the Masses with BFT-SMaRt: http://repositorio.ul.pt/bitstream/10455/6897/1/TR-2013-07.pdf
 .. _Blockchains and Smart Contracts for the Internet of Things: http://ieeexplore.ieee.org/stamp/stamp.jsp?arnumber=7467408
 
@@ -173,6 +173,6 @@ plethora of websites and blogs in the wider blockchain space.
 .. _widely implemented: https://raft.github.io/
 .. _blog of George Samman: http://sammantics.com
 .. _Juno: https://github.com/kadena-io/juno
-.. _Kyle Kingsbury's posts: https://aphyr.com/tags/Distributed-Systems
+.. _Kyle Kingsbury's blog: https://aphyr.com/tags/Distributed-Systems
 
 .. vim: set tw=72:
