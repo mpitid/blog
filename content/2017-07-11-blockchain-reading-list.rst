@@ -148,9 +148,9 @@ plethora of websites and blogs in the wider blockchain space.
    illustrated guide.
 
 .. [7] Remember that self-driving deep-neural 3D-printed drone-cars will
-   one day run on the blockchain, they will be beautiful and
-   all-encompassing, guiding us serenely into the singularity we've all
-   been waiting for so long!
+   one day run on the post-quantum semantic blockchain, they will be
+   beautiful and all-encompassing, guiding us serenely into the
+   singularity we've all been waiting for so long!
 
 .. [8] A third one is interoperability, both with legacy systems and
    other blockchains.
