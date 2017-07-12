@@ -113,8 +113,8 @@ to distinguish between serious efforts and good ol' snake oil [6]_.
 If you want to explore this area further --despite these warnings-- I
 recommend taking a look at the `blog of George Samman`_ which has
 summarised a lot of these efforts, mostly in the financial sector. I'll
-admit I am intrigued by Kadena (based on Juno_ which was itself based on
-a BFT extension of Raft) and HashGraph (a non-deterministic BFT
+admit I am intrigued by Kadena_ (based on Juno_ which was itself based on
+a BFT extension of Raft) and HashGraph_ (a non-deterministic BFT
 consensus algorithm), although the veracity of some of the claims made
 remains to be verified.
 
@@ -174,5 +174,7 @@ plethora of websites and blogs in the wider blockchain space.
 .. _blog of George Samman: http://sammantics.com
 .. _Juno: https://github.com/kadena-io/juno
 .. _Kyle Kingsbury's blog: https://aphyr.com/tags/Distributed-Systems
+.. _HashGraph: http://www.swirlds.com/developer-resources/whitepapers/
+.. _Kadena: http://kadena.io/
 
 .. vim: set tw=72:
