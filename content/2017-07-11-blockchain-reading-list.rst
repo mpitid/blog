@@ -38,13 +38,13 @@ adversary, network synchrony assumptions, and existence of correctness
 proofs of the underlying protocols.
 
 PoW-based blockchains and BFT consensus algorithms are placed at
-opposite ends of the scalability-vs-performance spectrum: PoW offers
-high scalability but poor performance, whereas current BFT (and CFT)
-consensus algorithms offer good performance but their scalability is
-poorly understood and they are seldom deployed with more than a handful
-of replicas [2]_. The paper then proceeds to discuss current efforts and
-suggestions for improving blockchain scalability, before concluding with
-a short list of open problems.
+opposite ends of the scalability spectrum: PoW offers high scalability
+but poor performance, whereas current BFT (and CFT) consensus algorithms
+offer good performance but their scalability is poorly understood and
+they are seldom deployed with more than a handful of replicas [2]_. The
+paper then proceeds to discuss current efforts and suggestions for
+improving blockchain scalability, before concluding with a short list of
+open problems.
 
 The major contribution in my opinion is its function as a curated and
 comprehensive list of references which cover all of the above aspects in
