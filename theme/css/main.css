@@ -171,14 +171,14 @@ table {margin: .5em auto 1.5em auto; width: 98%;}
 	
 /* HTML5 tags */
 header, section, footer,
-aside, nav, article,  {
+aside, nav, article, figure {
 	display: block;
 }
 
 /***** Layout *****/
 .body {clear: both; margin: 0 auto; width: 800px;}
-img.right, .right {float: right; margin: 0 0 2em 2em;}
-img.left, .left {float: left; margin: 0 2em 2em 0;}
+img.right, figure.right {float: right; margin: 0 0 2em 2em;}
+img.left, figure.left {float: left; margin: 0 2em 2em 0;}
 
 /*
 	Header
@@ -263,13 +263,13 @@ img.left, .left {float: left; margin: 0 2em 2em 0;}
 	-webkit-border-radius: 10px;
 }
 
-#featured  {
+#featured figure {
 	border: 2px solid #eee;
 	float: right;
 	margin: 0.786em 2em 0 5em;
 	width: 248px;
 }
-#featured  img {display: block; float: right;}
+#featured figure img {display: block; float: right;}
 
 #featured h2 {color: #C74451; font-size: 1.714em; margin-bottom: 0.333em;}
 #featured h3 {font-size: 1.429em; margin-bottom: .5em;}
