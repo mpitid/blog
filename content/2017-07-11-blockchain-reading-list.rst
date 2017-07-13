@@ -108,24 +108,28 @@ problem with many whitepapers is that they are mostly marketing material
 dressed in technical jargon. They use impressive-sounding language and
 give out just enough to hint at a competitive advantage, but not enough
 to reveal its true extent --or lack thereof. This makes it challenging
-to distinguish between serious efforts and good ol' snake oil [6]_.
+to distinguish between serious efforts and good ol' snake oil (but see
+`Attack of the 50-foot blockchain`_ for a colourfully illustrated
+guide).
 
 If you want to explore this area further --despite these warnings-- I
 recommend taking a look at the `blog of George Samman`_ which has
 summarised a lot of these efforts, mostly in the financial sector. I'll
-admit I am intrigued by Kadena_ (based on Juno_ which was itself based on
-a BFT extension of Raft) and HashGraph_ (a non-deterministic BFT
+admit I am intrigued by Kadena_ (based on Juno_ which was itself based
+on a BFT extension of Raft) and HashGraph_ (a non-deterministic BFT
 consensus algorithm), although the veracity of some of the claims made
 remains to be verified.
 
-Finally, if your buzzword tolerance is high enough [7]_, `Blockchains
+Finally, if your buzzword tolerance is high enough [6]_, `Blockchains
 and Smart Contracts for the Internet of Things`_ may serve as an
 introduction into other popular areas of potential application. The
 report provides a blockchain taxonomy, examines the potential benefits
 and drawbacks for IoT and hints at one of the other major open problems
 in the area besides distributed consensus: privacy and confidentiality
-of transactions [8]_. The reference section is extensive, linking to a
-plethora of websites and blogs in the wider blockchain space.
+of transactions (a third one is interoperability, both with legacy
+systems and other blockchains). The reference section is extensive,
+linking to a plethora of websites and blogs in the wider blockchain
+space.
 
 .. Footnotes
 
@@ -144,16 +148,10 @@ plethora of websites and blogs in the wider blockchain space.
 .. [5] One would think that whitepapers have become a prerequisite to
    filing papers of incorporation!
 
-.. [6] But see `Attack of the 50-foot blockchain`_ for a colourfully
-   illustrated guide.
-
-.. [7] Remember that self-driving deep-neural 3D-printed drone-cars will
+.. [6] Remember that self-driving deep-neural 3D-printed drone-cars will
    one day run on the post-quantum semantic blockchain, they will be
    beautiful and all-encompassing, guiding us serenely into the
    singularity we've all been waiting for so long!
-
-.. [8] A third one is interoperability, both with legacy systems and
-   other blockchains.
 
 .. Links
 
