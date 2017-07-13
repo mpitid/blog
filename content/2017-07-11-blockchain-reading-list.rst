@@ -79,6 +79,19 @@ many years and across changing teams. The description of how the
 low-level design was tackled and how the system was tested and evaluated
 is also very useful.
 
+Another very interesting reference is `The Honey Badger of BFT
+Protocols`_. This paper describes an asynchronous, non-deterministic BFT
+consensus algorithm with reasonable performance and scalability, robust
+against adverse network conditions. Evaluation with 100 nodes on AWS
+results in throughput in the order of a few thousand transactions per
+second, but latency in the order of hundreds of seconds. The algorithm
+is based on an atomic broadcast protocol rather than state machine
+replication --see `Byzantine Consensus in Asynchronous Message-Passing
+Systems: a Survey`_ for a formal description and useful survey of BFT
+concepts and algorithms. Moreover, the research webpage of `Andrew
+Miller`_ --co-author of the Honey Badger paper-- contains a wealth of
+resources on many other aspects of blockchains and cryptocurrencies.
+
 For anyone with a further interest in distributed systems and
 particularly consensus protocols, `Can't we all just agree`_ is a series
 of posts from Adrian Colyer's `morning paper`_ blog and a good starting
@@ -159,7 +172,10 @@ space.
 .. _Rethinking permissioned blockchains: https://vukolic.github.io/rethinking-permissioned-blockchains-BCC2017.pdf
 .. _State Machine Replication for the Masses with BFT-SMaRt: http://repositorio.ul.pt/bitstream/10455/6897/1/TR-2013-07.pdf
 .. _Blockchains and Smart Contracts for the Internet of Things: http://ieeexplore.ieee.org/stamp/stamp.jsp?arnumber=7467408
+.. _The Honey Badger of BFT Protocols: https://eprint.iacr.org/2016/199.pdf
+.. _Byzantine Consensus in Asynchronous Message-Passing Systems\: a Survey: http://citeseerx.ist.psu.edu/viewdoc/summary?doi=10.1.1.704.3764
 
+.. _Andrew Miller: http://soc1024.ece.illinois.edu
 .. _Can't we all just agree: https://blog.acolyer.org/2015/03/01/cant-we-all-just-agree/
 .. _morning paper: https://blog.acolyer.org/
 .. _Ethereum whitepaper: https://github.com/ethereum/wiki/wiki/White-Paper
