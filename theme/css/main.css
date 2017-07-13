@@ -24,7 +24,30 @@ body {
     line-height: 1.429;
     margin: 0;
     padding: 0;
+    text-align: justify;
+}
+
+.footnote-reference {
+  font-size: xx-small;
+  vertical-align: super;
+}
+
+table.footnote {
     text-align: left;
+    line-height: 1;
+}
+
+td.label {
+  width: 2em;
+  font-size: small;
+}
+
+.align-center {
+   text-align: center;
+}
+
+.figure {
+    float: left;
 }
 
 /* Headings */
@@ -93,6 +116,10 @@ li { margin-top: 0.5em;
     padding:5px;
 }
 
+.post-info address {
+    display: none;
+}
+
 .post-info p{
     margin-top: 1px;
     margin-bottom: 1px;
@@ -142,14 +169,14 @@ table {margin: .5em auto 1.5em auto; width: 98%;}
 	
 /* HTML5 tags */
 header, section, footer,
-aside, nav, article, figure {
+aside, nav, article,  {
 	display: block;
 }
 
 /***** Layout *****/
 .body {clear: both; margin: 0 auto; width: 800px;}
-img.right, figure.right {float: right; margin: 0 0 2em 2em;}
-img.left, figure.left {float: left; margin: 0 2em 2em 0;}
+img.right, .right {float: right; margin: 0 0 2em 2em;}
+img.left, .left {float: left; margin: 0 2em 2em 0;}
 
 /*
 	Header
@@ -234,13 +261,13 @@ img.left, figure.left {float: left; margin: 0 2em 2em 0;}
 	-webkit-border-radius: 10px;
 }
 
-#featured figure {
+#featured  {
 	border: 2px solid #eee;
 	float: right;
 	margin: 0.786em 2em 0 5em;
 	width: 248px;
 }
-#featured figure img {display: block; float: right;}
+#featured  img {display: block; float: right;}
 
 #featured h2 {color: #C74451; font-size: 1.714em; margin-bottom: 0.333em;}
 #featured h3 {font-size: 1.429em; margin-bottom: .5em;}
