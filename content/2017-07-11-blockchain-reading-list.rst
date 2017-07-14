@@ -2,7 +2,6 @@
 :title: A blockchain reading list
 :date: 2017-07-07 16:00
 :tags: blockchain, distributed systems
-:status: draft
 
 I've often struggled to give good reference material when talking to
 people about the blockchain. The landscape is filled with obscure
