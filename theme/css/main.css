@@ -37,6 +37,11 @@ table.footnote {
   line-height: 1;
 }
 
+table.footnote td {
+    margin: 0px;
+    padding: 0px;
+}
+
 td.label {
   width: 2em;
   font-size: small;

@@ -23,7 +23,197 @@
 
             <aside id="featured" class="body">
                 <article>
-                    <h1 class="entry-title"><a href="http://mpitid.github.io/blog/pelican-workflow.html">Pelican&nbsp;workflow</a></h1>
+                    <h1 class="entry-title"><a href="http://mpitid.github.io/blog/a-blockchain-reading-list.html">A blockchain reading&nbsp;list</a></h1>
+<footer class="post-info">
+        <abbr class="published" title="2017-07-07T16:00:00+01:00">
+                Published: Fri 07 July 2017
+        </abbr>
+
+        <address class="vcard author">
+                By                         <a class="url fn" href="http://mpitid.github.io/blog/author/michaelp.html">michaelp</a>
+        </address>
+<p>In <a href="http://mpitid.github.io/blog/category/misc.html">misc</a>.</p>
+<p>tags: <a href="http://mpitid.github.io/blog/tag/blockchain.html">blockchain</a> <a href="http://mpitid.github.io/blog/tag/distributed-systems.html">distributed systems</a> </p>
+</footer><!-- /.post-info --><p>I&#8217;ve often struggled to give good reference material when talking to
+people about the blockchain. The landscape is filled with obscure
+buzzwords and overzealous hype and making one&#8217;s way through it is a
+challenge. This post is my attempt to provide a map, or rather a map of
+maps <a class="footnote-reference" href="#id7" id="id1">[1]</a>. I will start with some academic papers on distributed
+consensus before moving into more dangerous waters towards the&nbsp;end.</p>
+<div class="figure align-center" style="width: 200px">
+<img alt="talking about the blockchain" src="http://mpitid.github.io/blog/images/excuse-me-blockchain.jpg" style="width: 150.0px;" />
+</div>
+<p>For anyone interested in distributed systems, I recommend starting with
+<a class="reference external" href="https://vukolic.github.io/iNetSec_2015.pdf">The quest for a scalable blockchain fabric: Proof-of-work vs. <span class="caps">BFT</span>
+replication</a>. It&#8217;s probably the best overview paper I&#8217;ve come across so
+far. It describes key concepts &#8212;blockchains/distributed ledgers,
+bitcoin, ethereum, proof-of-work (PoW), smart contracts, state machine
+replication (<span class="caps">SMR</span>) and crash fault-tolerant (<span class="caps">CFT</span>) vs Byzantine
+fault-tolerant (<span class="caps">BFT</span>) consensus protocols. It then weaves them into a
+wider narrative where PoW based consensus &#8212;as implemented in public
+blockchains&#8212; is compared with traditional <span class="caps">CFT</span>/<span class="caps">BFT</span> solutions to
+consensus &#8212;which is where so-called permissioned blockchains are
+turning their&nbsp;attention.</p>
+<p>Moreover, an analysis of blockchains is provided in terms
+of their consensus algorithm and the implications this choice has in
+aspects ranging from identity management to consensus finality, scalability,
+performance (latency, throughput, power consumption), tolerated power of
+adversary, network synchrony assumptions, and existence of correctness
+proofs of the underlying&nbsp;protocols.</p>
+<p>PoW-based blockchains and <span class="caps">BFT</span> consensus algorithms are placed at
+opposite ends of the scalability spectrum: PoW offers high scalability
+but poor performance, whereas current <span class="caps">BFT</span> (and <span class="caps">CFT</span>) consensus algorithms
+offer good performance but their scalability is poorly understood and
+they are seldom deployed with more than a handful of replicas <a class="footnote-reference" href="#id8" id="id2">[2]</a>. The
+paper then proceeds to discuss current efforts and suggestions for
+improving blockchain scalability, before concluding with a short list of
+open&nbsp;problems.</p>
+<p>The major contribution in my opinion is its function as a curated and
+comprehensive list of references which cover all of the above aspects in
+detail for anyone looking to dive deeper <a class="footnote-reference" href="#id9" id="id3">[3]</a>. It also provides an
+informed but sober &#8212;though not completely unbiased&#8212; overview of the
+current state of affairs, from an industrial research perspective <a class="footnote-reference" href="#id10" id="id4">[4]</a>.
+A good follow-up paper is <a class="reference external" href="https://vukolic.github.io/rethinking-permissioned-blockchains-BCC2017.pdf">Rethinking Permissioned Blockchains</a> which
+explores the author&#8217;s proposal for the redesign of the architecture of
+<a class="reference external" href="https://github.com/hyperledger/fabric">HyperLedger Fabric</a>.</p>
+<p>All references in that paper are worth looking into, but I would
+strongly recommend <a class="reference external" href="http://repositorio.ul.pt/bitstream/10455/6897/1/TR-2013-07.pdf">State Machine Replication for the Masses with
+<span class="caps">BFT</span>-SMaRt</a> for anyone interested in the <em>practicalities</em> of
+<em>implementing</em> a <span class="caps">BFT</span> consensus algorithm. The full technical report
+describes the design and implementation of a production <span class="caps">BFT</span> consensus
+algorithm in Java, available under an open source license. The
+architecture is modular, the types of failure tolerated are configurable
+&#8212;from crashes to malicious Byzantine nodes&#8212; and the set of replicas
+can be adjusted dynamically while the system is running &#8212;something
+often missing from available <span class="caps">BFT</span>&nbsp;implementations.</p>
+<p>The implementation&#8217;s <span class="caps">API</span> and programming model are discussed, and the
+system is evaluated against alternative <span class="caps">BFT</span> implementations (<span class="caps">PBFT</span> and
+UpRight) as well as <span class="caps">CFT</span> ones (JPaxos). Finally, key take-aways from
+building and maintaining the system are&nbsp;provided.</p>
+<p>This is an excellent starting point for anyone interested in
+implementing a <em>practical</em> distributed consensus system, be it a <span class="caps">CFT</span> or
+<span class="caps">BFT</span> one. The main contribution in my opinion is the lessons and
+take-aways from developing and maintaining the system over the course of
+many years and across changing teams. The description of how the
+low-level design was tackled and how the system was tested and evaluated
+is also very&nbsp;useful.</p>
+<p>Another very interesting reference is <a class="reference external" href="https://eprint.iacr.org/2016/199.pdf">The Honey Badger of <span class="caps">BFT</span>
+Protocols</a>. This paper describes an asynchronous, non-deterministic <span class="caps">BFT</span>
+consensus algorithm with reasonable performance and scalability, robust
+against adverse network conditions. Evaluation with 100 nodes on <span class="caps">AWS</span>
+results in throughput in the order of a few thousand transactions per
+second, but latency in the order of hundreds of seconds. The algorithm
+is based on an atomic broadcast protocol rather than state machine
+replication &#8212;see <a class="reference external" href="http://citeseerx.ist.psu.edu/viewdoc/summary?doi=10.1.1.704.3764">Byzantine Consensus in Asynchronous Message-Passing
+Systems: a Survey</a> for a formal description and useful survey of <span class="caps">BFT</span>
+concepts and algorithms. Moreover, the research webpage of <a class="reference external" href="http://soc1024.ece.illinois.edu">Andrew
+Miller</a> &#8212;co-author of the Honey Badger paper&#8212; contains a wealth of
+resources on many other aspects of blockchains and&nbsp;cryptocurrencies.</p>
+<p>For anyone with a further interest in distributed systems and
+particularly consensus protocols, <a class="reference external" href="https://blog.acolyer.org/2015/03/01/cant-we-all-just-agree/">Can&#8217;t we all just agree</a> is a series
+of posts from Adrian Colyer&#8217;s <a class="reference external" href="https://blog.acolyer.org/">morning paper</a> blog and a good starting
+point. It covers some classical <span class="caps">CFT</span> consensus protocols such as
+Viewstamped Replication, Paxos, Zab and Raft in the form of paper
+summaries. Studying at least one of those designs in more detail is
+highly recommended; Raft is probably the easiest one and also <a class="reference external" href="https://raft.github.io/">widely
+implemented</a>. A useful &#8212;and often entertaining&#8212; companion resource in
+this area is <a class="reference external" href="https://aphyr.com/tags/Distributed-Systems">Kyle Kingsbury&#8217;s blog</a> on distributed systems, often
+elaborating on how many of them fail to provide their touted guarantees
+in&nbsp;practice.</p>
+<p>So far we have focused mostly on academic issues in distributed systems.
+For those preferring less formalised descriptions, the <a class="reference external" href="https://github.com/ethereum/wiki/wiki/White-Paper">Ethereum
+whitepaper</a> works as a good introduction to both Bitcoin and Ethereum,
+the motivation and technical decisions behind it and some of the
+potential&nbsp;applications.</p>
+<p>But what about all the business hype behind the blockchain? This is
+where things get tricky. If you have any exposure to the blockchain
+space and the companies in it, you&#8217;ve probably come across one or two
+<em>technology whitepapers</em> <a class="footnote-reference" href="#id11" id="id5">[5]</a>. Their typical promise is infinite
+scalability, seamless interoperability and an end to world hunger &#8212;but
+you can only choose two at a time, we are realists after all. The
+problem with many whitepapers is that they are mostly marketing material
+dressed in technical jargon. They use impressive-sounding language and
+give out just enough to hint at a competitive advantage, but not enough
+to reveal its true extent &#8212;or lack thereof. This makes it challenging
+to distinguish between serious efforts and good ol&#8217; snake oil (but see
+<a class="reference external" href="https://davidgerard.co.uk/blockchain/">Attack of the 50-foot blockchain</a> for a colourfully illustrated&nbsp;guide).</p>
+<p>If you want to explore this area further &#8212;despite these warnings&#8212; I
+recommend taking a look at the <a class="reference external" href="http://sammantics.com">blog of George Samman</a> which has
+summarised a lot of these efforts, mostly in the financial sector. I&#8217;ll
+admit I am intrigued by <a class="reference external" href="http://kadena.io/">Kadena</a> (based on <a class="reference external" href="https://github.com/kadena-io/juno">Juno</a> which was itself based
+on a <span class="caps">BFT</span> extension of Raft) and <a class="reference external" href="http://www.swirlds.com/developer-resources/whitepapers/">HashGraph</a> (a non-deterministic <span class="caps">BFT</span>
+consensus algorithm), although the veracity of some of the claims made
+remains to be&nbsp;verified.</p>
+<p>Finally, if your buzzword tolerance is high enough <a class="footnote-reference" href="#id12" id="id6">[6]</a>, <a class="reference external" href="http://ieeexplore.ieee.org/stamp/stamp.jsp?arnumber=7467408">Blockchains
+and Smart Contracts for the Internet of Things</a> may serve as an
+introduction into other popular areas of potential application. The
+report provides a blockchain taxonomy, examines the potential benefits
+and drawbacks for IoT and hints at one of the other major open problems
+in the area besides distributed consensus: privacy and confidentiality
+of transactions (a third one is interoperability, both with legacy
+systems and other blockchains). The reference section is extensive,
+linking to a plethora of websites and blogs in the wider blockchain&nbsp;space.</p>
+<!-- Footnotes -->
+<table class="docutils footnote" frame="void" id="id7" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id1">[1]</a></td><td>Alas, the map is never the territory.</td></tr>
+</tbody>
+</table>
+<table class="docutils footnote" frame="void" id="id8" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id2">[2]</a></td><td>Note however that scalability should not always be a <a class="reference external" href="http://www.frankmcsherry.org/graph/scalability/cost/2015/01/15/COST.html">goal in
+itself</a> and permissioned chains don&#8217;t necessarily need to scale to
+hundreds of thousands of nodes.</td></tr>
+</tbody>
+</table>
+<table class="docutils footnote" frame="void" id="id9" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id3">[3]</a></td><td>Also major  points for citing some vintage <a class="reference external" href="http://scholar.harvard.edu/files/mickens/files/thesaddestmoment.pdf">James Mickens</a>! :D</td></tr>
+</tbody>
+</table>
+<table class="docutils footnote" frame="void" id="id10" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id4">[4]</a></td><td>Marko Vukolić works for <span class="caps">IBM</span> Research, is actively involved with
+the <a class="reference external" href="https://www.hyperledger.org">HyperLedger</a> project and has done extensive research around
+Byzantine consensus.</td></tr>
+</tbody>
+</table>
+<table class="docutils footnote" frame="void" id="id11" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id5">[5]</a></td><td>One would think that whitepapers have become a prerequisite to
+filing papers of incorporation!</td></tr>
+</tbody>
+</table>
+<table class="docutils footnote" frame="void" id="id12" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id6">[6]</a></td><td>Remember that self-driving deep-neural 3D-printed drone-cars will
+one day run on the post-quantum semantic blockchain, they will be
+beautiful and all-encompassing, guiding us serenely into the
+singularity we&#8217;ve all been waiting for so long!</td></tr>
+</tbody>
+</table>
+<!-- Links -->
+<!-- vim: set tw=72: -->
+                </article>
+            </aside><!-- /#featured -->
+                <section id="content" class="body">
+                    <h1>Other articles</h1>
+                    <hr />
+                    <ol id="posts-list" class="hfeed">
+
+            <li><article class="hentry">
+                <header>
+                    <h1><a href="http://mpitid.github.io/blog/pelican-workflow.html" rel="bookmark"
+                           title="Permalink to Pelican workflow">Pelican&nbsp;workflow</a></h1>
+                </header>
+
+                <div class="entry-content">
 <footer class="post-info">
         <abbr class="published" title="2017-07-07T16:00:00+01:00">
                 Published: Fri 07 July 2017
@@ -34,39 +224,13 @@
         </address>
 <p>In <a href="http://mpitid.github.io/blog/category/misc.html">misc</a>.</p>
 <p>tags: <a href="http://mpitid.github.io/blog/tag/markup.html">markup</a> <a href="http://mpitid.github.io/blog/tag/meta.html">meta</a> </p>
-</footer><!-- /.post-info --><p>Time flies &#8212;having an audience of one does not help either. Since it&#8217;s
+</footer><!-- /.post-info -->                <p>Time flies &#8212;having an audience of one does not help either. Since it&#8217;s
 been so long since I&#8217;ve used my new pelican workflow, I had to
 reconstruct most of it, so I&#8217;m putting it down in this post as faster
-reminder just in case (although I&#8217;m sure I&#8217;ll be updating frequently
-<em>this time</em>&nbsp;:P).</p>
-<p>First off, a few&nbsp;packages:</p>
-<div class="highlight"><pre>aptitude install pelican python-typogrify ghp-import
-</pre></div>
-<p>The fist two are fairly straightforward while the latter is used to
-automate the management of the <tt class="docutils literal"><span class="pre">gh-pages</span></tt> branch required by
-<a class="reference external" href="https://help.github.com/categories/github-pages-basics/">github-pages</a>.</p>
-<p>After writing new posts or updating content test locally with something&nbsp;like</p>
-<div class="highlight"><pre>pelican content
-<span class="nb">cd</span> output <span class="o">&amp;&amp;</span> python -m pelican.server
-firefox localhost:8000
-</pre></div>
-<p>After committing and pushing the master branch, publish the output with
-the&nbsp;following:</p>
-<div class="highlight"><pre>pelican content -o output -s publishconf.py
-ghp-import output -m <span class="s2">&quot;new post&quot;</span>
-</pre></div>
-<p>Do a final check and if everything checks out,&nbsp;push:</p>
-<div class="highlight"><pre>git checkout gh-pages <span class="o">&amp;&amp;</span> git push origin gh-pages
-git checkout master <span class="o">&amp;&amp;</span> rm -r output
-</pre></div>
-<p>For more information consult the <a class="reference external" href="https://help.github.com/categories/github-pages-basics/">github-pages</a> documentation, the
-<a class="reference external" href="http://docs.getpelican.com/en/stable/publish.html">pelican publishing</a> guide and the relevant <a class="reference external" href="http://docs.getpelican.com/en/3.6.3/tips.html#publishing-to-github">pelican tips</a>.</p>
-                </article>
-            </aside><!-- /#featured -->
-                <section id="content" class="body">
-                    <h1>Other articles</h1>
-                    <hr />
-                    <ol id="posts-list" class="hfeed">
+reminder just in case (although I&#8217;m ...</p>
+                <a class="readmore" href="http://mpitid.github.io/blog/pelican-workflow.html">read more</a>
+                </div><!-- /.entry-content -->
+            </article></li>
 
             <li><article class="hentry">
                 <header>
